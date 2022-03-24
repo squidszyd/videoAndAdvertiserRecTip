@@ -28,17 +28,17 @@ WCE(加权交叉熵损失函数)定义如下：
 
 ![](https://latex.codecogs.com/svg.image?Loss&space;=&space;-\frac{1}{N}\sum_{i=1}^{n}[w_{i}\cdot&space;y_{i}\cdot&space;log(p_{i})&plus;(1-y_{i})\cdot&space;log(1-p_{i})])
 
-这和二值交叉熵仅仅有一点变化，就是在**正样本**的判别上加了一个![w](https://math.jianshu.com/math?formula=w)系数，而该系数的设定则有很多方式确定。
+这和二值交叉熵仅仅有一点变化，就是在**正样本**的判别上加了一个![](https://latex.codecogs.com/svg.image?w_{i})系数，而该系数的设定则有很多方式确定。
 
 #### 短视频WCE应用
 
 在短视频推荐中，WCE应用如下：
 
-正样本：用户点击并播放视频video，权重![w](https://math.jianshu.com/math?formula=w)设置为：![](https://latex.codecogs.com/svg.image?log_{2}(wt&plus;1),&space;wt:watch\_time)
+正样本：用户点击并播放视频video，权重![](https://latex.codecogs.com/svg.image?w_{i})设置为：![](https://latex.codecogs.com/svg.image?w_{i}&space;=&space;log_{2}(wt&plus;1),&space;wt&space;=&space;watchTime)
 
-![](https://latex.codecogs.com/svg.image?watch\_time)为用户对视频的播放时长，单位为s；
+![](https://latex.codecogs.com/svg.image?watchTime)为用户对视频的播放时长，单位为s；
 
-负样本：以上正样本copy一份，权重设置为：1；
+负样本：以上正样本复制一份，权重设置为：1；
 
 
 
@@ -48,7 +48,7 @@ WCE(加权交叉熵损失函数)定义如下：
 
 
 
-预测结果![](https://latex.codecogs.com/svg.image?\inline&space;p)为预测是正样本的概率，![w](https://math.jianshu.com/math?formula=w)为正样本权重。
+预测结果![](https://latex.codecogs.com/svg.image?\inline&space;p)为预测是正样本的概率，![](https://latex.codecogs.com/svg.image?w)为正样本权重。
 
 ！！！推导过程？？待补充，为啥odds = 权重 ！！！！
 
@@ -62,7 +62,7 @@ WCE(加权交叉熵损失函数)定义如下：
 
 以上方法
 
-此外，对于正样本权重![w](https://math.jianshu.com/math?formula=w)的设置，也有另一种方式，如下：
+此外，对于正样本权重![](https://latex.codecogs.com/svg.image?w)的设置，也有另一种方式，如下：
 
 ![](https://latex.codecogs.com/svg.image?w=log_{2}(wt&plus;1)&plus;1)
 
