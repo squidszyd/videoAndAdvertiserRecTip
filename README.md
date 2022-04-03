@@ -46,7 +46,7 @@ WCE(加权交叉熵损失函数)定义如下：
 
 ![](https://latex.codecogs.com/svg.image?\inline&space;Odds&space;=&space;\frac{p}{1-p}&space;=e^{\theta^{T}&space;x}=w)
 
-
+？？？？
 
 预测结果![](https://latex.codecogs.com/svg.image?\inline&space;p)为预测是正样本的概率，![](https://latex.codecogs.com/svg.image?w)为正样本权重。
 
