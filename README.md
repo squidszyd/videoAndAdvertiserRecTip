@@ -7,9 +7,7 @@
 
 
 ## 模型结构优化
-
-待补充
-
+常用的优化结构有：PPNet
 
 
 ## 样本及损失函数优化
@@ -42,15 +40,15 @@ WCE(加权交叉熵损失函数)定义如下：
 
 
 
-模型假定DeepFM，则模型预测结果记作![](https://latex.codecogs.com/svg.image?\inline&space;p)，根据**logit函数**及logistics regression可以得到：
+模型假定DeepFM，则模型预测结果记作![](https://latex.codecogs.com/svg.image?\inline&space;p)，则：
 
 ![](https://latex.codecogs.com/svg.image?\inline&space;Odds&space;=&space;\frac{p}{1-p}&space;=e^{\theta^{T}&space;x}=w)
 
-？？？？
-
 预测结果![](https://latex.codecogs.com/svg.image?\inline&space;p)为预测是正样本的概率，![](https://latex.codecogs.com/svg.image?w)为正样本权重。
 
-！！！推导过程？？待补充，为啥odds = 权重 ！！！！
+为啥odds = 权重？此处主要参考了YouTube的[Deep Neural Networks for YouTube](Recommendationshttps://dl.acm.org/doi/pdf/10.1145/2959100.2959190)
+
+具体推导过程参考：https://zhuanlan.zhihu.com/p/435912211
 
 来看一下边界条件推导：
 
@@ -59,8 +57,6 @@ WCE(加权交叉熵损失函数)定义如下：
 ![](https://latex.codecogs.com/svg.image?\therefore&space;\frac{p}{1-p}\in&space;[0,&plus;\infty]\:&space;\;&space;\:&space;\;&space;e^{\theta^{T}&space;x}&space;\in&space;[0,&plus;\infty]\:&space;\;&space;\:&space;\;&space;\theta^{T}&space;x&space;\in&space;[-\infty,&plus;\infty])
 
 根据sigmoid函数曲线，当![](https://latex.codecogs.com/svg.image?p=\frac{1}{2})时，可推导得出![](https://latex.codecogs.com/svg.image?wt=1)，即当预测值![](https://latex.codecogs.com/svg.image?p>\frac{1}{2})时，预测用户播放视频时长![](https://latex.codecogs.com/svg.image?wt>1s&space;)；反之，预测用户播放视频时长![](https://latex.codecogs.com/svg.image?wt<1s&space;)。
-
-以上方法
 
 此外，对于正样本权重![](https://latex.codecogs.com/svg.image?w)的设置，也有另一种方式，如下：
 
