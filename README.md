@@ -49,7 +49,9 @@ WCE建模时长的方案在国内某手app上得到充分验证，有以下两�
 | 时长边界条件 | $当wt=1时，$ <br> $w_{1} = 1$ <br> $p_{1} = \frac{1}{2}$ | $当wt=1时，$ <br> $w_{2} = 2$ <br> $p_{2} = \frac{2}{3}$ |
 | 模型预测值图示 | ![1.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/1.png) | ![2.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/2.png) |
 
-由于观看时长 $wt \in (0, +\infty]$，该值可以无限大，但 $w$ 不能无限大，因此会对 $w = \log_2 (wt+1)$ 设置阈值上界，经验值设置为8，具体可以调参。
+由于观看时长 $wt \in (0, +\infty]$，该值可以无限大，但 $w$ 不能无限大，因此会对 $w = \log_2 (wt+1)$ 设置阈值上界，经验值设置为8，原因？
+
+导数梯度区间值较小，基本没有变化？
 
 - 两种方案哪种更好？
 第二种，原因？？
