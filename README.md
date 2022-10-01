@@ -24,7 +24,7 @@
 
 普通二值交叉熵损失函数定义如下：
 
-$$Loss=mc^2$$
+$$Loss=- \frac{1}{N} \sum_{k=1}^N k^2 $$
 
 ![](https://latex.codecogs.com/svg.image?Loss&space;=&space;-\frac{1}{N}\sum_{i=1}^{n}[y_{i}\cdot&space;log(p_{i})&plus;(1-y_{i})\cdot&space;log(1-p_{i})])
 
@@ -38,7 +38,7 @@ WCE(加权交叉熵损失函数)定义如下：
 
 $$E=mc^2$$
 
-行内的公式$$E=mc^2$$行内的公式，行内的$$E=mc^2$$公式。
+行内的公式 $$E=mc^2$$ 行内的公式，行内的 $$E=mc^2$$ 公式。
 
 - 正样本
 用户点击并播放视频video，权重![](https://latex.codecogs.com/svg.image?w_{i})设置为：![](https://latex.codecogs.com/svg.image?w_{i}&space;=&space;log_{2}(wt&plus;1),&space;wt&space;=&space;watchTime)
