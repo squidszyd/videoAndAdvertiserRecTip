@@ -35,19 +35,26 @@ $$Loss=- \frac{1}{N} \sum_{k=1}^N [w_{i} \cdot log(p_{i}) + log(1-p_{i})]$$
 
 - 短视频WCE具体实现方案
 
-WCE建模时长的方案在国内某手app上得到充分验证，具体有以下两种方案：
+WCE建模时长的方案在国内某手app上得到充分验证，有以下两种方案：
 
 |  | 方案1 | 方案2 |
 | :----:| :----: | :----: |
-| 观看时长$wt$ | $wt \in (0, +\infty]$ | $wt \in (0, +\infty]$ |
-| 正样本权重$w$ | $w_{1} = \log_2 (wt+1)$ | $w_{2} = \log_2(wt+1)+1$ |
+| 观看时长 $wt$ | $wt \in (0, +\infty]$ | $wt \in (0, +\infty]$ |
+| 正样本权重 $w$ | $w_{1} = \log_2 (wt+1)$ | $w_{2} = \log_2(wt+1)+1$ |
 | 负样本权重 | 1 | 1 |
-| 模型预测值<br>模型输出经过sigmoid变换 | $p_{1}$| $p_{2}$ |
+| 模型预测值 <br> 模型输出经过sigmoid变换 | $p_{1}$| $p_{2}$ |
 | $odds$ | $odds = \frac{p_{1}}{1-p_{1}} = w_{1}$ <br> $p_{1} = \frac{w_{1}}{w_{1} +1}$ | $odds = \frac{p_{2}}{1-p_{2}} = w_{2}$ <br> $p_{2} = \frac{w_{2}}{w_{2} +1}$ |
 | 模型预测值还原为时长 | $wt = 2^{\frac{p_{1}}{1-p_{1}}} -1 $ | $wt = 2^{(\frac{p_{2}}{1-p_{2}} -1)} -1$ |
 | 变量边界条件 | $wt \in (0, +\infty]$ <br> $w_{1} \in (0, +\infty]$ <br> $p_{1} \in (0, 1]$ | $wt \in (0, +\infty]$ <br> $w_{2} \in (1, +\infty]$ <br> $p_{2} \in (\frac{1}{2}, 1]$ |
 | 时长边界条件 | $当wt=1时，$ <br> $w_{1} = 1$ <br> $p_{1} = \frac{1}{2}$ | $当wt=1时，$ <br> $w_{2} = 2$ <br> $p_{2} = \frac{2}{3}$ |
 | 模型预测值图示 | ![1.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/1.png) | ![2.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/2.png) |
+
+由于观看时长 $wt \in (0, +\infty]$，该值可以无限大，但 $w$ 不能无限大，因此会对 $w = \log_2 (wt+1)$ 设置阈值上界，经验值设置为8，具体可以调参。
+
+- 两种方案哪种更好？
+第二种，原因？？
+
+
 
 
 
