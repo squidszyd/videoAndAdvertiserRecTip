@@ -16,13 +16,15 @@
 - 短视频领域优化方案
 短视频推荐初期优化指标是ctr，而视频本身时长及播放时长的差异，导致正负样本的定义较难界定。建模时长采用的方案是WCE，即每个样本都是正样本，其观看时长作为权重，由于沉浸式业务场景没有负样本，所以会对每个样本复制一份作为负样本，采用加权Logloss训练，具体实现方案有两种：
 1. 修改loss函数
-2. 样本复制一份，然后一起训练
+2. 样本复制一份作为负样本，权重为1，然后一起训练
 
 两种方案除了工程性能的差异，最终的训练效果是否有差异？？？
 
 #### 何为WCE？
 
 普通二值交叉熵损失函数定义如下：
+
+$$Loss=mc^2$$
 
 ![](https://latex.codecogs.com/svg.image?Loss&space;=&space;-\frac{1}{N}\sum_{i=1}^{n}[y_{i}\cdot&space;log(p_{i})&plus;(1-y_{i})\cdot&space;log(1-p_{i})])
 
@@ -34,20 +36,27 @@ WCE(加权交叉熵损失函数)定义如下：
 
 #### 短视频WCE具体实现方案
 
-正样本：用户点击并播放视频video，权重![](https://latex.codecogs.com/svg.image?w_{i})设置为：![](https://latex.codecogs.com/svg.image?w_{i}&space;=&space;log_{2}(wt&plus;1),&space;wt&space;=&space;watchTime)
+$$E=mc^2$$
+
+行内的公式$$E=mc^2$$行内的公式，行内的$$E=mc^2$$公式。
+
+- 正样本
+用户点击并播放视频video，权重![](https://latex.codecogs.com/svg.image?w_{i})设置为：![](https://latex.codecogs.com/svg.image?w_{i}&space;=&space;log_{2}(wt&plus;1),&space;wt&space;=&space;watchTime)
 
 ![](https://latex.codecogs.com/svg.image?watchTime)为用户对视频的播放时长，单位为s；
 
-负样本：以上正样本复制一份，权重设置为：1；
+- 负样本
+以上正样本复制一份，权重设置为：1；
 
+- 模型预测结果线上还原
 模型假定DeepFM，则模型预测结果记作![](https://latex.codecogs.com/svg.image?\inline&space;p)，则：
 
 ![](https://latex.codecogs.com/svg.image?\inline&space;Odds&space;=&space;\frac{p}{1-p}&space;=e^{\theta^{T}&space;x}=w)
 
-预测结果![](https://latex.codecogs.com/svg.image?\inline&space;p)为预测是正样本的概率，![](https://latex.codecogs.com/svg.image?w)为正样本权重。
+预测结果![](https://latex.codecogs.com/svg.image?\inline&space;p)为预测是正样本的概率，![](https://latex.codecogs.com/svg.image?w)为正样本权重，线上使用时，会根据权重公式还原为观看时长，具体如下：
 
-来看一下边界条件推导：
 
+- 边界条件推导
 ![](https://latex.codecogs.com/svg.image?\because&space;wt\in&space;[0,&plus;\infty]\:&space;\;&space;\:&space;\;&space;w\in&space;[0,&plus;\infty]\:&space;\;&space;\:&space;\;&space;p\in&space;[0,1])
 
 ![](https://latex.codecogs.com/svg.image?\therefore&space;\frac{p}{1-p}\in&space;[0,&plus;\infty]\:&space;\;&space;\:&space;\;&space;e^{\theta^{T}&space;x}&space;\in&space;[0,&plus;\infty]\:&space;\;&space;\:&space;\;&space;\theta^{T}&space;x&space;\in&space;[-\infty,&plus;\infty])
