@@ -18,9 +18,9 @@
 - 何为WCE？
 
 普通二值交叉熵损失函数定义如下：
-$$Loss=- \frac{1}{N} \sum_{k=1}^N [y_{i} \cdot log(p_{i}) + (1-y_{i}) \cdot log(1-p_{i})] $$
+$$Loss=- \frac{1}{N} \sum_{i=1}^N [y_{i} \cdot log(p_{i}) + (1-y_{i}) \cdot log(1-p_{i})] $$
 WCE(加权交叉熵损失函数)定义如下：
-$$Loss=- \frac{1}{N} \sum_{k=1}^N [w_{i} \cdot y_{i} \cdot log(p_{i}) + (1-y_{i}) \cdot log(1-p_{i})]$$
+$$Loss=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot y_{i} \cdot log(p_{i}) + (1-y_{i}) \cdot log(1-p_{i})]$$
 
 这和普通二值交叉熵仅仅有一点变化，就是在**正样本**的判别上加了一个 $w_{i}$ 系数，而该系数的设定则有很多方法。
 
@@ -28,7 +28,7 @@ $$Loss=- \frac{1}{N} \sum_{k=1}^N [w_{i} \cdot y_{i} \cdot log(p_{i}) + (1-y_{i}
 
 短视频推荐初期优化指标是ctr，而视频本身时长及播放时长的差异，导致正负样本的定义较难界定。建模时长采用的方案是WCE，即每个样本都是正样本，其观看时长作为权重，由于沉浸式业务场景没有负样本，所以会对每个样本复制一份作为负样本，采用加权Logloss训练，具体实现方案有两种：
 1. 直接修改loss函数
-$$Loss=- \frac{1}{N} \sum_{k=1}^N [w_{i} \cdot log(p_{i}) + log(1-p_{i})]$$
+$$Loss=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot log(p_{i}) + log(1-p_{i})]$$
 2. 样本复制一份作为负样本，权重为1，然后一起训练
 
 两种方案除了工程性能的差异，最终的训练效果是否有差异？？？
