@@ -11,6 +11,11 @@
 
 ### 时长建模
 
+#### mse建模
+用mse损失函数对观看时长拟合，由于观看时长数值范围较大，直接对原始值拟合会导致 $logit$ 出现较大的range，导致模型陷入局部最优，引起梯度爆炸。
+
+对观看时长做 $log$ 或 $e^{0.3}$ 变换后进行拟合，由于变换函数不是线性的，该方法对时长拟合是有偏估计，对于长观看时长的拟合会出现低估现象。
+
 #### WCE加权分类
 
 - 优化目标
@@ -66,11 +71,74 @@ WCE建模时长的方案在国内某手app上得到充分验证，有以下两�
 - 两种方案哪种更好？
 第二种，原因？？
 
+#### softmax多分类
+将观看时长进行分桶离散化，进而将回归问题转为多分类问题，业界方案如下：
+
+- 对观看时长 $wt$ 做等频划分，划为 $K$ 个桶：
+
+$$ [wt_{1},wt_{2},wt_{3}...,wt_{K}] $$
+$$ wt_{k}为桶的边界值，k=1,2,3..,K$$
 
 
+- 根据样本的观看时长得到label转换后的类别：
+
+当 $ wt_{k-1} < wt_{i} < wt_{k}$ 时， 该样本转换后的类别为 $b_{i}=k$
 
 
-### 多分类及衍化
+- 模型优化由回归变为多分类问题，loss函数如下：
+
+$$Loss=- \frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K I(b_{i}=k) \cdot log(p_{i,k})$$
+
+$$I(b_{i}=k)只在对应类别为1，其余为0$$
+
+
+- 线上serving时，得到样本的预测时长
+
+$$ \widehat{wt_{i}} = \sum_{k=1}^K m_{k} \cdot p_{i,k} $$
+
+$$ m_{k}是第k个桶的均值或中值 $$
+
+#### distill softmax多分类
+
+softmax多分类采用的是0-1的hard label，目标只能离散到一个桶里，这种硬标签忽略了负标签直接的差别。例如，某样本被分到第 $k$ 个桶， 损失函数只区分了预估为 $k$ 或者不为 $k$，当不为 $k$ 时，预测为 $k+1$ 或者 $k+n$ 的损失都为0，没有区别。但是作为回归问题，分桶值大小有顺序的含义，预测为 $k+n$ 的损失应该大于 $k+1$ 的损失.
+
+distill softmax多分类借鉴了知识蒸馏中soft label的思路，为负标签增加信息，从而缓解上述问题。
+
+假设时长分桶服从某个先验分布 $p(wt_{k})$，可以用KL散度来学习预测分布 $p_{i,k}$ 和 $p(wt_{k})$ 的相似性，即：
+
+$$Loss=\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p_{i}(wt_{k}) \cdot log\frac{p_{i}(wt_{k})}{p_{i,k}}$$
+
+$$=\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p_{i}(wt_{k}) \cdot [log(p_{i}(wt_{k})) - log(p_{i,k})]$$
+
+$$=\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p_{i}(wt_{k}) \cdot log(p_{i}(wt_{k})) - p_{i}(wt_{k}) \cdot log(p_{i,k})$$
+
+$$=-\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p_{i}(wt_{k}) \cdot log(p_{i,k}) + const$$
+
+
+$$当 p_{i}(wt_{k}) \sim \mathcal{N}(wt_{i}, \sigma)时，p_{i}(wt_{k}) = \frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{1}{2}(\frac{p_{i,k} - wt_{i}}{\sigma})^{2}}$$ 
+
+$$Loss = -\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K e^{-\frac{1}{2}(\frac{p_{i,k} - wt_{i}}{\sigma})^{2}} \cdot log(p_{i,k})$$
+
+$$当 p_{i}(wt_{k}) \sim Laplace(wt_{i}, \sigma)时，p_{i}(wt_{k}) = e^{-\frac{|p_{i,k} - wt_{i}|}{\sigma}}$$ 
+
+$$Loss = -\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K e^{-\frac{|p_{i,k} - wt_{i}|}{\sigma}} \cdot log(p_{i,k})$$
+
+$$\sigma 为超参数，可以设置为定值，也可以label-aware，如 \sigma = 1.5 \cdot \sqrt{wt}，越大的label其概率分布越平缓 $$
+
+分桶策略有以下几种：
+
+- uniform
+设定bin_size，进行等距分桶
+
+- segment
+根据时长分布，手动分桶
+
+- exp_bin
+```python
+tf.constant([np.exp(x/40.0) - 1 for x in range(bucket_size)])
+```
+
+
 
 ## 用户冷启动优化
 待补充
