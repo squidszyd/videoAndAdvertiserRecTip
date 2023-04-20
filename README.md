@@ -82,14 +82,14 @@ $$ wt_{k}为桶的边界值，k=1,2,3..,K$$
 
 - 根据样本的观看时长得到label转换后的类别：
 
-当 $wt_{k-1} < wt_{i} < wt_{k}$时， 该样本转换后的类别为 $b_{i}=k$
+当 $wt_{k-1} < wt_{i} < wt_{k}$时， 该样本转换后的类别为 $b_{i}$
 
 
 - 模型优化由回归变为多分类问题，loss函数如下：
 
-$$Loss=- \frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K I(b_{i}=k) \cdot log(p_{i,k})$$
+$$Loss=- \frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K I(b_{i}) \cdot log(p_{i,k})$$
 
-$$I(b_{i}=k)只在对应类别为1，其余为0$$
+$$I(b_{i})只在对应类别为1，其余为0$$
 
 
 - 线上serving时，得到样本的预测时长
@@ -140,7 +140,39 @@ $$ \sigma 为超参数，可以设置为定值，也可以label-aware，如 \sig
 tf.constant([np.exp(x/40.0) - 1 for x in range(bucket_size)])
 ```
 
+#### 分桶LogLoss建模
 
+distill softmax通过假设样本的分布来建模时长，引入了多个超参数，如 $\sigma$ 等，分桶LogLoss则以学习类别序的包含关系为目标建模时长，具体做法如下：
+
+- 观看时长 $wt$ 划为 $K$ 个桶：
+
+$$ [wt_{1},wt_{2},wt_{3}...,wt_{K}] $$
+$$ wt_{k}为桶的边界值，k=1,2,3..,K$$
+
+- 根据样本的观看时长得到转换后的label：
+
+当 $wt_{k-1} < wt_{i} < wt_{k}$时，即 $b_{i}=k$，该样本转换后的label为：
+
+[1, 1, ..., 1, 0, ..., 0]
+
+$wt_{i}$ 的样本在 $[wt_{k-1}, wt_{k}]$ 下类别为1，在 $[wt_{1}, wt_{2}]，[wt_{2}, wt_{3}]，...，[wt_{k-2}, wt_{k-1}]$ 下类别为1，在 $[wt_{k}, wt_{k+1}]，[wt_{k+1}, wt_{k+2}]，...，[wt_{K-1}, wt_{K}]$ 下类别为0
+
+
+- 模型优化由回归问题转化为多个独立的二分类问题，loss函数如下：
+
+$$Loss=- \frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K I(k \le b_{i}) \cdot log(p_{i,k})$$
+
+$$I(k \le b_{i})表示小于等于类别b_{i}时为1，其余为0$$
+
+- 线上serving时，得到样本的预测时长
+
+$$ \widehat{wt_{i}} = \sum_{k=1}^K I(k \le b_{i}) \cdot (m_{k} - m_{k-1}) \cdot p_{i,k} $$
+
+$$ = 1 \cdot (m_{1} - m_{0}) \cdot p_{i,1} + 1 \cdot (m_{2} - m_{1}) \cdot p_{i,2} + ... + 1 \cdot (m_{b_{i}} - m_{b_{i}-1}) \cdot p_{i,b_{i}}  + 0 \cdot (m_{k+2} - m_{k+1}) \cdot p_{i,k+1} + ... + 0 \cdot (m_{K} - m_{K-1}) \cdot p_{i,K} $$
+
+$$ b_{i}=k表示样本i的时长lable是k，m_{k}是第k个桶的均值或中值，m_{0} = 0 $$
+
+$$ p_{i,k}表示样本i预测时长是第k类的概率，I(k \le b_{i})表示小于等于类别b_{i}时为1，其余为0$$
 
 ## 用户冷启动优化
 待补充
