@@ -96,7 +96,7 @@ $$I(b_{i}=k)只在对应类别为1，其余为0$$
 
 $$ \widehat{wt_{i}} = \sum_{k=1}^K m_{k} \cdot p_{i,k} $$
 
-$$ m_{k}是第k个桶的均值或中值 $$
+$$ m_{k}是第k个桶的均值或中值，p_{i,k}表示样本i预测时长是第k类的概率 $$
 
 #### distill softmax多分类
 
@@ -123,7 +123,7 @@ $$当 p_{i}(wt_{k}) \sim Laplace(wt_{i}, \sigma)时，p_{i}(wt_{k}) = e^{-\frac{
 
 $$Loss = -\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K e^{-\frac{|wt_{k} - wt_{i}|}{\sigma}} \cdot log(p_{i,k})$$
 
-$$\sigma 为超参数，可以设置为定值，也可以label-aware，如 \sigma = 1.5 \cdot \sqrt{wt}，越大的label其概率分布越平缓 $$
+$$ wt_{i}是样本i的观看时长，为真实label值，wt_{k}是时长分桶第k个桶的桶内均值或者桶边界，此处以桶边界为例，\sigma 为超参数，可以设置为定值，也可以label-aware，如 \sigma = 1.5 \cdot \sqrt{wt}，越大的label其概率分布越平缓 $$
 
 分桶策略有以下几种：
 
