@@ -115,13 +115,13 @@ $$=\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p_{i}(wt_{k}) \cdot log(p_{i}(wt_{k})) 
 $$=-\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p_{i}(wt_{k}) \cdot log(p_{i,k}) + const$$
 
 
-$$当 p_{i}(wt_{k}) \sim \mathcal{N}(wt_{i}, \sigma)时，p_{i}(wt_{k}) = \frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{1}{2}(\frac{p_{i,k} - wt_{i}}{\sigma})^{2}}$$ 
+$$当 p_{i}(wt_{k}) \sim \mathcal{N}(wt_{i}, \sigma)时，p_{i}(wt_{k}) = \frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{1}{2}(\frac{wt_{k} - wt_{i}}{\sigma})^{2}}$$ 
 
-$$Loss = -\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K e^{-\frac{1}{2}(\frac{p_{i,k} - wt_{i}}{\sigma})^{2}} \cdot log(p_{i,k})$$
+$$Loss = -\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K e^{-\frac{1}{2}(\frac{wt_{k} - wt_{i}}{\sigma})^{2}} \cdot log(p_{i,k})$$
 
-$$当 p_{i}(wt_{k}) \sim Laplace(wt_{i}, \sigma)时，p_{i}(wt_{k}) = e^{-\frac{|p_{i,k} - wt_{i}|}{\sigma}}$$ 
+$$当 p_{i}(wt_{k}) \sim Laplace(wt_{i}, \sigma)时，p_{i}(wt_{k}) = e^{-\frac{|wt_{k} - wt_{i}|}{\sigma}}$$ 
 
-$$Loss = -\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K e^{-\frac{|p_{i,k} - wt_{i}|}{\sigma}} \cdot log(p_{i,k})$$
+$$Loss = -\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K e^{-\frac{|wt_{k} - wt_{i}|}{\sigma}} \cdot log(p_{i,k})$$
 
 $$\sigma 为超参数，可以设置为定值，也可以label-aware，如 \sigma = 1.5 \cdot \sqrt{wt}，越大的label其概率分布越平缓 $$
 
