@@ -170,6 +170,8 @@ $$ \widehat{wt_{i}} = \sum_{k=1}^K I(k \le b_{i}) \cdot (m_{k} - m_{k-1}) \cdot 
 
 $$ = 1 \cdot (m_{1} - m_{0}) \cdot p_{i,1} + 1 \cdot (m_{2} - m_{1}) \cdot p_{i,2} + ... + 1 \cdot (m_{b_{i}} - m_{b_{i}-1}) \cdot p_{i,b_{i}}  + 0 \cdot (m_{k+2} - m_{k+1}) \cdot p_{i,k+1} + ... + 0 \cdot (m_{K} - m_{K-1}) \cdot p_{i,K} $$
 
+$$ = 1 \cdot (m_{1} - m_{0}) \cdot p_{i,1} + 1 \cdot (m_{2} - m_{1}) \cdot p_{i,2} + ... + 1 \cdot (m_{b_{i}} - m_{b_{i}-1}) \cdot p_{i,b_{i}} $$
+
 $$ b_{i}=k表示样本i的时长lable是k，m_{k}是第k个桶的均值或中值，m_{0} = 0 $$
 
 $$ p_{i,k}表示样本i预测时长是第k类的概率，I(k \le b_{i})表示小于等于类别b_{i}时为1，其余为0$$
