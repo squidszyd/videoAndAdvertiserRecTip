@@ -140,9 +140,9 @@ $$ \sigma 为超参数，可以设置为定值，也可以label-aware，如 \sig
 tf.constant([np.exp(x/40.0) - 1 for x in range(bucket_size)])
 ```
 
-#### 分桶LogLoss建模
+#### 分桶LogLoss建模/ordinal regression建模
 
-distill softmax通过假设样本的分布来建模时长，引入了多个超参数，如 $\sigma$ 等，分桶LogLoss则以学习类别序的包含关系为目标建模时长，具体做法如下：
+分桶LogLoss建模/ordinal regression建模是另外一种方法解决softmax的hard label的问题，具体做法如下：
 
 - 观看时长 $wt$ 划为 $K$ 个桶：
 
