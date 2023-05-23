@@ -52,24 +52,41 @@ $$Loss=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot log(p_{i}) + log(1-p_{i})]$$
 
 WCE建模时长的方案在国内某手app上得到充分验证，有以下两种方案：
 
-|  | 方案1 | 方案2 |
-| :----:| :----: | :----: |
-| 观看时长 $wt$ | $wt \in (0, +\infty]$ | $wt \in (0, +\infty]$ |
-| 正样本权重 $w$ | $w_{1} = \log_2 (wt+1)$ | $w_{2} = \log_2(wt+1)+1$ |
-| 负样本权重 | 1 | 1 |
-| 模型预测值 <br> 模型输出经过sigmoid变换 | $p_{1}$| $p_{2}$ |
-| $odds$ | $odds = \frac{p_{1}}{1-p_{1}} = w_{1}$ <br> $p_{1} = \frac{w_{1}}{w_{1} +1}$ | $odds = \frac{p_{2}}{1-p_{2}} = w_{2}$ <br> $p_{2} = \frac{w_{2}}{w_{2} +1}$ |
-| 模型预测值还原为时长 | $wt = 2^{\frac{p_{1}}{1-p_{1}}} -1 $ | $wt = 2^{(\frac{p_{2}}{1-p_{2}} -1)} -1$ |
-| 变量边界条件 | $wt \in (0, +\infty]$ <br> $w_{1} \in (0, +\infty]$ <br> $p_{1} \in (0, 1]$ | $wt \in (0, +\infty]$ <br> $w_{2} \in (1, +\infty]$ <br> $p_{2} \in (\frac{1}{2}, 1]$ |
-| 时长边界条件 | $当wt=1时，$ <br> $w_{1} = 1$ <br> $p_{1} = \frac{1}{2}$ | $当wt=1时，$ <br> $w_{2} = 2$ <br> $p_{2} = \frac{2}{3}$ |
+|  | 方案1 | 方案2 | 方案3 |
+| :----:| :----: | :----: | :----: |
+| 观看时长 $wt$ | $wt \in (0, +\infty]$ | $wt \in (0, +\infty]$ | $wt \in (0, +\infty]$ |
+| 正样本权重 $w$ | $w_{1} = \log_2 (wt+1)$ | $w_{2} = \log_2(wt+1)+1$ | $w_{3} = wt$ |
+| 负样本权重 | 1 | 1 | 1 |
+| 模型预测值 <br> 模型输出经过sigmoid变换 | $p_{1}$| $p_{2}$ | $p_{3}$ | 
+| $odds$ | $odds = \frac{p_{1}}{1-p_{1}} = w_{1}$ <br> $p_{1} = \frac{w_{1}}{w_{1} +1}$ | $odds = \frac{p_{2}}{1-p_{2}} = w_{2}$ <br> $p_{2} = \frac{w_{2}}{w_{2} +1}$ | $odds = \frac{p_{3}}{1-p_{3}} = w_{3}$ <br> $p_{3} = \frac{w_{3}}{w_{3} +1}$ |
+| 模型预测值还原为时长 | $wt = 2^{\frac{p_{1}}{1-p_{1}}} -1 $ | $wt = 2^{(\frac{p_{2}}{1-p_{2}} -1)} -1$ | $wt = \frac{p_{3}}{1-p_{3}}$ |
+| 变量边界条件 | $wt \in (0, +\infty]$ <br> $w_{1} \in (0, +\infty]$ <br> $p_{1} \in (0, 1]$ | $wt \in (0, +\infty]$ <br> $w_{2} \in (1, +\infty]$ <br> $p_{2} \in (\frac{1}{2}, 1]$ | $wt \in (0, +\infty]$ <br> $w_{3} \in (0, +\infty]$ <br> $p_{3} \in (0, 1]$ |
+| 时长边界条件 | $当wt=1时，$ <br> $w_{1} = 1$ <br> $p_{1} = \frac{1}{2}$ | $当wt=1时，$ <br> $w_{2} = 2$ <br> $p_{2} = \frac{2}{3}$ | $当wt=1时，$ <br> $w_{3} = 1$ <br> $p_{3} = \frac{1}{2}$ |
 | 模型预测值图示 | ![1.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/1.png) | ![2.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/2.png) |
 
-由于观看时长 $wt \in (0, +\infty]$，该值可以无限大，但 $w$ 不能无限大，因此会对 $w = \log_2 (wt+1)$ 设置阈值上界，经验值设置为8，原因？
+对于权重 $w$，业界有两种处理方法：
 
-导数梯度区间值较小，基本没有变化？
+一种是对其做log变换，如方案1和2所示，快手采用该处理方法：观看时长 $wt \in (0, +\infty]$，该值可以无限大，但 $w$ 不能无限大，因此会对 $w = \log_2 (wt+1)$ 设置阈值上界，经验值设置为8，原因？
 
-- 两种方案哪种更好？
-第二种，原因？？
+一种是直接用原值，如方案3所示：此方法与YouTube的论文和字节的处理方式一致
+
+- WCE预设了样本服从几何分布，以方案3为例，具体推导如下：
+
+$$Loss=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot log(p_{i}) + log(1-p_{i})]， p_{i} = \frac{1}{1 + e^{-\theta x}}$$
+
+求解该损失，得到无偏的预估时长，$ wt_{i} = \frac{p_{i}}{1-p_{i}} = e^{\theta x_{i}} $，用预估值来表示损失函数可写为：
+
+$$Loss=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot log(\frac{wt_{i}}{1+wt_{i}}) + log(1-\frac{wt_{i}}{1+wt_{i}})]$$
+
+$$ =- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot log(wt_{i}) - (1+w_{i}) \cdot log(1+wt_{i})]$$
+
+$$ =- \frac{1}{N} \sum_{i=1}^N log[wt_{i}^{w_{i}} \cdot (1+wt_{i})^{-(1+w_{i})}] $$
+
+$$ =- \frac{1}{N} \sum_{i=1}^N log[(\frac{wt_{i}}{wt_{i}+1})^{w_{i}} \cdot \frac{1}{wt_{i}+1}] $$
+
+当 $wt_{i} \in (0,1,2,..., +\infty]$，令 $p_{i} = \frac{1}{wt_{i}+1}$，有 $P(wt_{i}=k|x_{i}) = (1-p_{i})^k \cdot p_{i}$，其满足几何分布，数学期望为：$\frac{1 - p_{i}}{p_{i}} = wt_{i}$，即WCE的预估值等于数学期望，是无偏预估。
+
+几何分布：https://en.wikipedia.org/wiki/Geometric_distribution
 
 #### softmax多分类
 将观看时长进行分桶离散化，进而将回归问题转为多分类问题，业界方案如下：
