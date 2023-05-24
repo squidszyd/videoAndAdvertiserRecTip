@@ -84,7 +84,7 @@ $$ =- \frac{1}{N} \sum_{i=1}^N log[wt_{i}^{w_{i}} \cdot (1+wt_{i})^{-(1+w_{i})}]
 
 $$ =- \frac{1}{N} \sum_{i=1}^N log[(\frac{wt_{i}}{wt_{i}+1})^{w_{i}} \cdot \frac{1}{wt_{i}+1}] $$
 
-当 $wt_{i} \in (0,1,2,..., +\infty]$，令 $p_{i} = \frac{1}{wt_{i}+1}$，有 $P(wt_{i}=k|x_{i}) = (1-p_{i})^k \cdot p_{i}$，其满足几何分布，数学期望为：$\frac{1 - p_{i}}{p_{i}} = wt_{i}$ ，即WCE的预估值等于数学期望，是无偏预估。
+当 $wt_{i} \in (0,1,2,..., +\infty]$，令 $p_{i} = \frac{1}{wt_{i}+1}$，有 $P(wt_{i}=k|x_{i}) = (1-p_{i})^k \cdot p_{i}$，其满足几何分布，数学期望为 $\frac{1 - p_{i}}{p_{i}} = wt_{i}$ ，即WCE的预估值等于数学期望，是无偏预估。
 
 几何分布：https://en.wikipedia.org/wiki/Geometric_distribution
 
