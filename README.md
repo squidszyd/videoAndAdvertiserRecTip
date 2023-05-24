@@ -74,7 +74,7 @@ WCE建模时长的方案在国内某手app上得到充分验证，有以下两�
 
 $$Loss=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot log(p_{i}) + log(1-p_{i})]， p_{i} = \frac{1}{1 + e^{-\theta x}}$$
 
-求解该损失，得到无偏的预估时长，$wt_{i} = \frac{p_{i}}{1-p_{i}} = e^{\theta x_{i}}$，用预估值来表示损失函数可写为：
+求解该损失，得到无偏的预估时长，$wt_{i} = \frac{p_{i}}{1-p_{i}} = e^{\theta x_{i}}$ ，用预估值来表示损失函数可写为：
 
 $$Loss=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot log(\frac{wt_{i}}{1+wt_{i}}) + log(1-\frac{wt_{i}}{1+wt_{i}})]$$
 
@@ -84,7 +84,7 @@ $$ =- \frac{1}{N} \sum_{i=1}^N log[wt_{i}^{w_{i}} \cdot (1+wt_{i})^{-(1+w_{i})}]
 
 $$ =- \frac{1}{N} \sum_{i=1}^N log[(\frac{wt_{i}}{wt_{i}+1})^{w_{i}} \cdot \frac{1}{wt_{i}+1}] $$
 
-当 $wt_{i} \in (0,1,2,..., +\infty]$，令 $p_{i} = \frac{1}{wt_{i}+1}$，有 $P(wt_{i}=k|x_{i}) = (1-p_{i})^k \cdot p_{i}$，其满足几何分布，数学期望为：$\frac{1 - p_{i}}{p_{i}} = wt_{i}$，即WCE的预估值等于数学期望，是无偏预估。
+当 $wt_{i} \in (0,1,2,..., +\infty]$，令 $p_{i} = \frac{1}{wt_{i}+1}$，有 $P(wt_{i}=k|x_{i}) = (1-p_{i})^k \cdot p_{i}$，其满足几何分布，数学期望为：$\frac{1 - p_{i}}{p_{i}} = wt_{i}$ ，即WCE的预估值等于数学期望，是无偏预估。
 
 几何分布：https://en.wikipedia.org/wiki/Geometric_distribution
 
