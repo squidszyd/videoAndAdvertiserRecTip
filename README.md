@@ -74,7 +74,7 @@ WCE建模时长的方案在国内某手app上得到充分验证，有以下两�
 
 $$Loss=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot log(p_{i}) + log(1-p_{i})]， p_{i} = \frac{1}{1 + e^{-\theta x}}$$
 
-求解该损失，得到无偏的预估时长，$ wt_{i} = \frac{p_{i}}{1-p_{i}} = e^{\theta x_{i}} $ ，用预估值来表示损失函数可写为：
+求解该损失，得到无偏的预估时长，$$wt_{i} = \frac{p_{i}}{1-p_{i}} = e^{\theta x_{i}} $$ ，用预估值来表示损失函数可写为：
 
 $$Loss=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot log(\frac{wt_{i}}{1+wt_{i}}) + log(1-\frac{wt_{i}}{1+wt_{i}})]$$
 
