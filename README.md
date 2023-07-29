@@ -159,7 +159,9 @@ tf.constant([np.exp(x/40.0) - 1 for x in range(bucket_size)])
 
 #### 分桶LogLoss建模/ordinal regression建模
 
-分桶LogLoss建模/ordinal regression建模是另外一种方法解决softmax的hard label的问题，具体做法如下：
+简单的多分类存在没有考虑非目标类的之间的序关系的问题，Ordinal Regression则是一种考虑类间序关系的回归方法，推导过程参考：https://zhuanlan.zhihu.com/p/573572151
+
+具体做法如下：
 
 - 观看时长 $wt$ 划为 $K$ 个桶：
 
