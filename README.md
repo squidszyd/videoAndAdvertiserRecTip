@@ -170,7 +170,7 @@ tf.constant([np.exp(x/40.0) - 1 for x in range(bucket_size)])
 
 简单的多分类存在没有考虑非目标类的之间的序关系的问题，Ordinal Regression则是一种考虑类间序关系的回归方法，推导过程参考：https://zhuanlan.zhihu.com/p/573572151
 
-![3.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/1.png) | ![2.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/3.png)
+![3.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/3.png)
 
 具体做法如下：
 
