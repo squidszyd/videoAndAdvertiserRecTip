@@ -170,6 +170,8 @@ tf.constant([np.exp(x/40.0) - 1 for x in range(bucket_size)])
 
 简单的多分类存在没有考虑非目标类的之间的序关系的问题，Ordinal Regression则是一种考虑类间序关系的回归方法，推导过程参考：https://zhuanlan.zhihu.com/p/573572151
 
+![3.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/1.png) | ![2.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/3.png)
+
 具体做法如下：
 
 - 观看时长 $wt$ 划为 $K$ 个桶：
@@ -202,7 +204,7 @@ $$ = 1 \cdot (m_{1} - m_{0}) \cdot p_{i,1} + 1 \cdot (m_{2} - m_{1}) \cdot p_{i,
 
 $$ b_{i}=k表示样本i的时长lable是k，m_{k}是第k个桶的均值或中值，m_{0} = 0 $$
 
-$$ p_{i,k}表示样本i预测时长是第k类的概率，I(k \le b_{i})表示小于等于类别b_{i}时为1，其余为0$$
+$$ p_{i,k}表示样本i预测时长是第k个桶的概率，I(k \le b_{i})表示小于等于类别b_{i}时为1，其余为0$$
 
 ## 用户冷启动优化
 待补充
