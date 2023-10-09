@@ -44,7 +44,14 @@ $$ odds = \frac{p}{1-p} = \frac{\sum_{i=1}^k T_{i}}{N - k + k} = \frac{\sum_{i=1
 具体实现方案有两种：
 1. 直接修改loss函数
 $$Loss=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot log(p_{i}) + log(1-p_{i})]$$
-此时，正样本的梯度变为原来的 $w_{i}$ 倍，即 $w_{i}*(1-p_{i})$ 负样本的梯度保持不变，即 $1*(0-p_{i})$ 样本梯度推导见：https://lukebest.github.io/posts/d28f
+
+此时，正样本的梯度变为原来的 $w_{i}$ 倍，即 
+$$w_{i}*(1-p_{i})$$
+
+负样本的梯度保持不变，即 
+$$1*(0-p_{i})$$
+
+样本梯度推导见：https://lukebest.github.io/posts/d28f
 
 2. 样本复制一份作为负样本，权重为1，然后一起训练
 
