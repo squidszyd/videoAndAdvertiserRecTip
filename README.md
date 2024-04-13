@@ -79,7 +79,7 @@ WCE建模时长的方案在国内某手app上得到充分验证，对于权重 $
 
 一种是直接用原值，如方案3所示：此方法与YouTube的论文和字节的处理方式一致
 
-- WCE预设了样本服从几何分布，以方案3为例，具体推导如下：
+- WCE隐含的假设是y服从几何分布：P(y) = p^y(1-p)，然后最大似然可得wce loss。以方案3为例，具体推导如下：
 
 $$Loss=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot log(p_{i}) + log(1-p_{i})]， p_{i} = \frac{1}{1 + e^{-\theta x}}$$
 
@@ -94,6 +94,8 @@ $$ =- \frac{1}{N} \sum_{i=1}^N log[wt_{i}^{w_{i}} \cdot (1+wt_{i})^{-(1+w_{i})}]
 $$ =- \frac{1}{N} \sum_{i=1}^N log[(\frac{wt_{i}}{wt_{i}+1})^{w_{i}} \cdot \frac{1}{wt_{i}+1}] $$
 
 当 $wt_{i} \in (0,1,2,..., +\infty]$，令 $p_{i} = \frac{1}{wt_{i}+1}$，有 $P(wt_{i}=k|x_{i}) = (1-p_{i})^k \cdot p_{i}$，其满足几何分布，数学期望为 $\frac{1 - p_{i}}{p_{i}} = wt_{i}$ ，即WCE的预估值等于数学期望，是无偏预估。
+
+**特别地，如果label的分布和几何分布或负二项分布差异较大，则WCE效果会变差。**
 
 几何分布：https://en.wikipedia.org/wiki/Geometric_distribution
 
