@@ -173,6 +173,12 @@ $$ \sigma 为超参数，可以设置为定值，也可以label-aware，如 \sig
 tf.constant([np.exp(x/40.0) - 1 for x in range(bucket_size)])
 ```
 
+- 线上serving时，得到样本的预测时长
+
+$$ \widehat{wt_{i}} = \sum_{k=1}^K m_{k} \cdot p_{i,k} $$
+
+$$ m_{k}是第k个桶的均值或中值，p_{i,k}表示样本i预测时长是第k类的概率 $$
+
 #### 分桶LogLoss建模/ordinal regression建模
 
 简单的多分类存在没有考虑非目标类的之间的序关系的问题，Ordinal Regression则是一种考虑类间序关系的回归方法，推导过程参考：https://zhuanlan.zhihu.com/p/573572151
