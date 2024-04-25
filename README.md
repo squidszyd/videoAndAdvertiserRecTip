@@ -68,8 +68,8 @@ WCE建模时长的方案在国内某手app上得到充分验证，对于权重 $
 | 观看时长 $wt$ | $wt \in (0, +\infty]$ | $wt \in (0, +\infty]$ | $wt \in (0, +\infty]$ |
 | 正样本权重 $w$ | $w_{1} = \log_2 (wt+1)$ | $w_{2} = \log_2(wt+1)+1$ | $w_{3} = wt$ |
 | 负样本权重 | 1 | 1 | 1 |
-| 模型预测值 <br> 模型输出经过sigmoid变换 | $p_{1}$| $p_{2}$ | $p_{3}$ | 
-| $odds$ | $odds = \frac{p_{1}}{1-p_{1}} = w_{1}$ <br> $p_{1} = \frac{w_{1}}{w_{1} +1}$ | $odds = \frac{p_{2}}{1-p_{2}} = w_{2}$ <br> $p_{2} = \frac{w_{2}}{w_{2} +1}$ | $odds = \frac{p_{3}}{1-p_{3}} = w_{3}$ <br> $p_{3} = \frac{w_{3}}{w_{3} +1}$ |
+| 模型预测值 <br> 模型输出经过sigmoid变换 | $p_{1} = \frac{1}{1+e^{-\theta_{1} x}}$| $p_{2} = \frac{1}{1+e^{-\theta_{2} x}}$ | $p_{3} = \frac{1}{1+e^{-\theta_{3} x}}$ | 
+| $odds$ | $odds = \frac{p_{1}}{1-p_{1}} = e^{\theta_{1} x} = w_{1}$ <br> $p_{1} = \frac{w_{1}}{w_{1} +1}$ | $odds = \frac{p_{2}}{1-p_{2}} = e^{\theta_{2} x} = w_{2}$ <br> $p_{2} = \frac{w_{2}}{w_{2} +1}$ | $odds = \frac{p_{3}}{1-p_{3}} = e^{\theta_{3} x} = w_{3}$ <br> $p_{3} = \frac{w_{3}}{w_{3} +1}$ |
 | 模型预测值还原为时长 | $wt = 2^{\frac{p_{1}}{1-p_{1}}} -1 $ | $wt = 2^{(\frac{p_{2}}{1-p_{2}} -1)} -1$ | $wt = \frac{p_{3}}{1-p_{3}}$ |
 | 变量边界条件 | $wt \in (0, +\infty]$ <br> $w_{1} \in (0, +\infty]$ <br> $p_{1} \in (0, 1]$ | $wt \in (0, +\infty]$ <br> $w_{2} \in (1, +\infty]$ <br> $p_{2} \in (\frac{1}{2}, 1]$ | $wt \in (0, +\infty]$ <br> $w_{3} \in (0, +\infty]$ <br> $p_{3} \in (0, 1]$ |
 | 时长边界条件 | $当wt=1时，$ <br> $w_{1} = 1$ <br> $p_{1} = \frac{1}{2}$ | $当wt=1时，$ <br> $w_{2} = 2$ <br> $p_{2} = \frac{2}{3}$ | $当wt=1时，$ <br> $w_{3} = 1$ <br> $p_{3} = \frac{1}{2}$ |
@@ -99,10 +99,20 @@ $$ =- \frac{1}{N} \sum_{i=1}^N log[(\frac{wt_{i}}{wt_{i}+1})^{w_{i}} \cdot \frac
 
 几何分布：https://en.wikipedia.org/wiki/Geometric_distribution
 
-
 wce的缺点：
-- wce虽然是无偏预估，预估值等于数学期望，但其隐含的假设是y服从几何分布，如果label的分布和几何分布或负二项分布差异较大，则WCE效果会变差；
-- 对loss梯度做简单推导后可以发现wce在低估和高估的时候梯度大小完全不同，模型一旦高估则很难被拉回正常，需要补充相关论证
+- wce隐含的假设是y服从几何分布。虽然wce是无偏预估，预估值等于数学期望，但其隐含的假设是y服从几何分布，如果label的分布和几何分布较大，则WCE效果会变差；
+- wce在低估和高估的时候梯度大小不同。对loss梯度做简单推导后可以发现wce在低估和高估的时候梯度大小不同，具体推导如下：
+
+$$Loss=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot log(wt_{i}) - (1+w_{i}) \cdot log(1+wt_{i})]$$
+
+$$ \frac {\partial Loss} {\partial wt_{i}}=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot \frac{1}{wt_{i}} - (1+w_{i}) \cdot \frac{1}{1+wt_{i}}]$$
+
+$$ = \frac{1}{N} \sum_{i=1}^N \frac{wt_{i} - w_{i}}{wt_{i} \cdot (1+wt_{i})}$$
+
+以 $w_{i}=20$ 为例，画出梯度图像如下所示：
+![4.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/4.png)
+
+可以看出，在低估 $wt_{i}<20$ 和高估 $wt_{i}>20$ 时，梯度具有严重的不对称性。低估时，梯度较大；高估时，梯度较小。在训练时，长视频样本回传梯度大，作用到全样本上，也贡献了短视频的预估，所以会出现长视频低估、短视频高估现象。
 
 #### softmax多分类
 将观看时长进行分桶离散化，进而将回归问题转为多分类问题，业界方案如下：
@@ -178,6 +188,8 @@ tf.constant([np.exp(x/40.0) - 1 for x in range(bucket_size)])
 $$ \widehat{wt_{i}} = \sum_{k=1}^K m_{k} \cdot p_{i,k} $$
 
 $$ m_{k}是第k个桶的均值或中值，p_{i,k}表示样本i预测时长是第k类的概率 $$
+
+![5.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/5.png)
 
 #### 分桶LogLoss建模/ordinal regression建模
 
