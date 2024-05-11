@@ -106,11 +106,11 @@ wce的缺点：
 - wce隐含的假设是y服从几何分布。虽然wce是无偏预估，预估值等于数学期望，但其隐含的假设是y服从几何分布，如果label的分布和几何分布较大，则WCE效果会变差；
 - wce在低估和高估的时候梯度大小不同。对loss梯度做简单推导后可以发现wce在低估和高估的时候梯度大小不同，具体推导如下：
 
-$$Loss=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot log(wt_{i}) - (1+w_{i}) \cdot log(1+wt_{i})]$$
+$$Loss=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot log(\widehat{wt_{i}}) - (1+w_{i}) \cdot log(1+\widehat{wt_{i}})]$$
 
-$$ \frac {\partial Loss} {\partial wt_{i}}=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot \frac{1}{wt_{i}} - (1+w_{i}) \cdot \frac{1}{1+wt_{i}}]$$
+$$ \frac {\partial Loss} {\partial \widehat{wt_{i}}}=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot \frac{1}{\widehat{wt_{i}}} - (1+w_{i}) \cdot \frac{1}{1+\widehat{wt_{i}}}]$$
 
-$$ = \frac{1}{N} \sum_{i=1}^N \frac{wt_{i} - w_{i}}{wt_{i} \cdot (1+wt_{i})}$$
+$$ = \frac{1}{N} \sum_{i=1}^N \frac{\widehat{wt_{i}} - w_{i}}{\widehat{wt_{i}} \cdot (1+\widehat{wt_{i}})}$$
 
 以 $w_{i}=20$ 为例，画出梯度图像如下所示：
 ![4.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/4.png)
