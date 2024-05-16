@@ -141,7 +141,7 @@ $$ \widehat{wt_{i}} = \sum_{k=1}^K m_{k} \cdot p_{i,k} $$
 
 $$ m_{k}是第k个桶的均值或中值，p_{i,k}表示样本i预测时长是第k类的概率 $$
 
-**softmax多分类采用的是0-1的hard label，目标只能离散到一个桶里，类别之间绝对隔离，这种硬标签忽略了负标签直接的差别，丢失了回归问题label连续的假设。例如，某样本被分到第 $k$ 个桶， 损失函数只区分了预估为 $k$ 或者不为 $k$，当不为 $k$ 时，预测为 $k+1$ 或者 $k+n$ 的损失都为0，没有区别。但是作为回归问题，分桶值大小有顺序的含义，预测为 $k+n$ 的损失应该大于 $k+1$ 的损失.**
+**softmax多分类采用的是0-1的hard label，目标只能离散到一个桶里，类别之间绝对隔离，这种硬标签忽略了负标签直接的差别，丢失了回归问题label连续的假设。例如，某样本被分到第 $k$ 个桶， 损失函数只区分了预估为 $k$ 或者不为 $k$，当不为 $k$ 时，预测为 $k+1$ 或者 $k+n$ 的损失都为0，没有区别。但是作为回归问题，分桶值大小有顺序的含义，预测为 $k+n$ 的损失应该大于 $k+1$ 的损失。**
 
 #### distill softmax多分类
 
@@ -166,6 +166,7 @@ $$当 p_{i}(wt_{k}) \sim Laplace(wt_{i}, \sigma)时，p_{i}(wt_{k}) = e^{-\frac{
 
 $$Loss = -\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K e^{-\frac{|wt_{k} - wt_{i}|}{\sigma}} \cdot log(p_{i,k})$$
 
+是否要归一化？？？？$ \sigma $ 的取值怎么办？
 $$ wt_{i}是样本i的观看时长，为真实label值，wt_{k}是时长分桶第k个桶的桶内均值或者桶边界，此处以桶边界为例 $$
 
 $$ \sigma 为超参数，可以设置为定值，也可以label-aware，如 \sigma = 1.5 \cdot \sqrt{wt}，越大的label其概率分布越平缓 $$
@@ -192,6 +193,8 @@ $$ m_{k}是第k个桶的均值或中值，p_{i,k}表示样本i预测时长是第
 ![5.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/5.png)
 
 #### 分桶LogLoss建模/ordinal regression建模
+
+https://github.com/hufu6371/DORN
 
 简单的多分类存在没有考虑非目标类的之间的序关系的问题，Ordinal Regression则是一种考虑类间序关系的回归方法，推导过程参考：https://zhuanlan.zhihu.com/p/573572151
 
