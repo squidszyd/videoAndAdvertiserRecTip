@@ -145,41 +145,59 @@ $$ m_{k}是第k个桶的均值或中值，p_{i,k}表示样本i预测时长是第
 
 #### distill softmax多分类
 
-distill softmax多分类借鉴了知识蒸馏中soft label的思路，为负标签增加信息，从而缓解上述问题。
+distill softmax多分类借鉴了知识蒸馏中soft label的思路，依然使用原始label分桶后做模型softmax输出做多分类的思路。假如我们有一个很强的teacher时长模型，输出应该是原始label附近的一个概率分布，我们的student模型去学习这个概率分布，这个概率分布大概率不是一个等方差的高斯分布，而是一个label_aware的分布，更贴近label的误差分布。这样既能让student模型捕捉到label间的关系，也能降低student模型的学习难度，模型最终使用输出的概率分布做加权平均得到最终的staytime预估值。
 
-假设时长分桶服从某个先验分布 $p(wt_{k})$，可以用KL散度来学习预测分布 $p_{i,k}$ 和 $p(wt_{k})$ 的相似性，即：
+实际上我们并没有teacher模型，但反过来思考下我们需要teacher模型原因是对原始label分桶的一个软化过程，只是这个软化使用的是能区分样本难度的teacher模型来做。如果只是考虑软化，基于人工经验我们是可以做的相当好的，可以跳过训练teacher模型这一步，对原始label分类软化的这一步我们称为人工蒸馏，人工蒸馏中软化还可以做到分布均值的无偏以及分布的label_aware，甚至比强teacher模型做得更多更好。
 
-$$Loss=\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p_{i}(wt_{k}) \cdot log\frac{p_{i}(wt_{k})}{p_{i,k}}$$
+最终使用人的先验知识作为虚拟teacher对时长label进分桶行了软化，帮助多分类任务感知label间序关系以及分布，降低了时长模型的学习难度。
 
-$$=\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p_{i}(wt_{k}) \cdot [log(p_{i}(wt_{k})) - log(p_{i,k})]$$
+假设时长分桶服从某个先验分布 $p(wt_{k})$，可以用KL散度来学习预测分布 $p_{i,k}$ 和 $p'_{i}(wt_{k})$ 的相似性，即：
 
-$$=\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p_{i}(wt_{k}) \cdot log(p_{i}(wt_{k})) - p_{i}(wt_{k}) \cdot log(p_{i,k})$$
+$$Loss=\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p'_{i}(wt_{k}) \cdot log\frac{p'_{i}(wt_{k})}{p_{i,k}}$$
 
-$$=-\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p_{i}(wt_{k}) \cdot log(p_{i,k}) + const$$
+$$=\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p'_{i}(wt_{k}) \cdot [log(p'_{i}(wt_{k})) - log(p_{i,k})]$$
+
+$$=\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p'_{i}(wt_{k}) \cdot log(p'_{i}(wt_{k})) - p'_{i}(wt_{k}) \cdot log(p_{i,k})$$
+
+$$=-\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p'_{i}(wt_{k}) \cdot log(p_{i,k}) + const$$
 
 
-$$当 p_{i}(wt_{k}) \sim \mathcal{N}(wt_{i}, \sigma)时，p_{i}(wt_{k}) = \frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{1}{2}(\frac{wt_{k} - wt_{i}}{\sigma})^{2}}$$ 
+$$当 p(wt_{k}) \sim \mathcal{N}(wt_{i}, \sigma)时，p_{i}(wt_{k}) = \frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{1}{2}(\frac{wt_{k} - wt_{i}}{\sigma})^{2}}，p'_{i}(wt_{k}) = \frac{p_{i}(wt_{k})}{\sum_{k=1}^Kp_{i}(wt_{k})}$$ 
 
-$$Loss = -\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K e^{-\frac{1}{2}(\frac{wt_{k} - wt_{i}}{\sigma})^{2}} \cdot log(p_{i,k})$$
+$$当 p(wt_{k}) \sim Laplace(wt_{i}, \sigma)时，p_{i}(wt_{k}) = e^{-\frac{|wt_{k} - wt_{i}|}{\sigma}}，p'_{i}(wt_{k}) = \frac{p_{i}(wt_{k})}{\sum_{k=1}^Kp_{i}(wt_{k})}$$ 
 
-$$当 p_{i}(wt_{k}) \sim Laplace(wt_{i}, \sigma)时，p_{i}(wt_{k}) = e^{-\frac{|wt_{k} - wt_{i}|}{\sigma}}$$ 
-
-$$Loss = -\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K e^{-\frac{|wt_{k} - wt_{i}|}{\sigma}} \cdot log(p_{i,k})$$
-
-是否要归一化？？？？$ \sigma $ 的取值怎么办？
 $$ wt_{i}是样本i的观看时长，为真实label值，wt_{k}是时长分桶第k个桶的桶内均值或者桶边界，此处以桶边界为例 $$
 
-$$ \sigma 为超参数，可以设置为定值，也可以label-aware，如 \sigma = 1.5 \cdot \sqrt{wt}，越大的label其概率分布越平缓 $$
+$$ \sigma 为超参数，可以设置为定值，也可以label_aware，如 \sigma = 1.5 \cdot \sqrt{wt}，label越大，\sigma 越大，可根据后验数据分析确定 \sigma 的分布形态 $$
 
-分桶策略有以下几种：
+$$ p_{i}(wt_{k})是计算样本 {i} 在各个分桶上的分布， p'_{i}(wt_{k})为归一化的概率值，这样保证了样本 {i} 在各个分桶上的概率加和=1，也符合多分类softmax的定义。 $$
 
-- uniform
-设定bin_size，进行等距分桶
+![5.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/5.png)
 
-- segment
-根据时长分布，手动分桶
+软化函数的设计则只要label变换后的分布符合场景后验值的分布即可。
+无论哪种软化策略，都依赖分桶，顾名思义是对staytime的一堆边界划分点，可以均匀划分，也可以非均匀划分，具体每个场景的分桶策略可根据场景特性决定，核心原则是让桶内的样本数量分布更均匀。下面给出一些常见的划分例子，分桶策略有以下几种：
+
+- uniform，设定bin_size，进行等距分桶
+```python
+ST_BOUNDS = tf.range(0.0, 3600.0, 1.0, dtype=M.get_dtype())
+```
+
+- segment，根据时长分布，手动分桶
+```python
+# segment
+ST_BOUNDS = np.concatenate(
+    [
+        np.arange(0, 10, 0.2),
+        np.arange(10, 180, 1.0),
+        np.arange(180, 600, 10.0),
+        np.arange(600, 3600, 50.0),
+    ], axis=0
+)
+```
 
 - exp_bin
+时长场景建模推荐该种分桶方式，时长越短，数据更密集，分桶要更细；时长越长，数据更稀疏，分桶要更粗
+
 ```python
 tf.constant([np.exp(x/40.0) - 1 for x in range(bucket_size)])
 ```
@@ -190,7 +208,11 @@ $$ \widehat{wt_{i}} = \sum_{k=1}^K m_{k} \cdot p_{i,k} $$
 
 $$ m_{k}是第k个桶的均值或中值，p_{i,k}表示样本i预测时长是第k类的概率 $$
 
-![5.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/5.png)
+##### 扩展应用
+distill softmax方法可以适用于其他回归问题的建模和优化上，如电商场景、直播场景的GMV优化，
+
+电商场景GMV优化，分桶策略采用GMV分布的离散峰值作为桶边界进行分桶，软化函数采用log_norm的正态分布或者log_norm的拉普拉斯分布，类似zlin的log_norm，即先对label和bounds做log变换，然后做正态变换或者拉普拉斯变换。
+
 
 #### 分桶LogLoss建模/ordinal regression建模
 
