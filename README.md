@@ -151,20 +151,20 @@ distill softmax多分类借鉴了知识蒸馏中soft label的思路，依然使�
 
 最终使用人的先验知识作为虚拟teacher对时长label进分桶行了软化，帮助多分类任务感知label间序关系以及分布，降低了时长模型的学习难度。
 
-假设时长分桶服从某个先验分布 $p(wt_{k})$，可以用KL散度来学习预测分布 $p_{i,k}$ 和 $p'_{i}(wt_{k})$ 的相似性，即：
+假设时长分桶服从某个先验分布 $p(wt_{k})$，可以用KL散度来学习预测分布 $p_{i,k}$ 和 $p^\prime_{i}(wt_{k})$ 的相似性，即：
 
-$$Loss=\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p'_{i}(wt_{k}) \cdot log\frac{p'_{i}(wt_{k})}{p_{i,k}}$$
+$$Loss=\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p^\prime_{i}(wt_{k}) \cdot log\frac{p^\prime_{i}(wt_{k})}{p_{i,k}}$$
 
-$$=\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p'_{i}(wt_{k}) \cdot [log(p'_{i}(wt_{k})) - log(p_{i,k})]$$
+$$=\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p^\prime_{i}(wt_{k}) \cdot [log(p^\prime_{i}(wt_{k})) - log(p_{i,k})]$$
 
-$$=\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p'_{i}(wt_{k}) \cdot log(p'_{i}(wt_{k})) - p'_{i}(wt_{k}) \cdot log(p_{i,k})$$
+$$=\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p^\prime_{i}(wt_{k}) \cdot log(p^\prime_{i}(wt_{k})) - p^\prime_{i}(wt_{k}) \cdot log(p_{i,k})$$
 
-$$=-\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p'_{i}(wt_{k}) \cdot log(p_{i,k}) + const$$
+$$=-\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p^\prime_{i}(wt_{k}) \cdot log(p_{i,k}) + const$$
 
 
-$$当 p(wt_{k}) \sim \mathcal{N}(wt_{i}, \sigma)时，p_{i}(wt_{k}) = \frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{1}{2}(\frac{wt_{k} - wt_{i}}{\sigma})^{2}}，p'_{i}(wt_{k}) = \frac{p_{i}(wt_{k})}{\sum_{k=1}^Kp_{i}(wt_{k})}$$ 
+$$当 p(wt_{k}) \sim \mathcal{N}(wt_{i}, \sigma)时，p_{i}(wt_{k}) = \frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{1}{2}(\frac{wt_{k} - wt_{i}}{\sigma})^{2}}，p^\prime_{i}(wt_{k}) = \frac{p_{i}(wt_{k})}{\sum_{k=1}^Kp_{i}(wt_{k})}$$ 
 
-$$当 p(wt_{k}) \sim Laplace(wt_{i}, \sigma)时，p_{i}(wt_{k}) = e^{-\frac{|wt_{k} - wt_{i}|}{\sigma}}，p'_{i}(wt_{k}) = \frac{p_{i}(wt_{k})}{\sum_{k=1}^Kp_{i}(wt_{k})}$$ 
+$$当 p(wt_{k}) \sim Laplace(wt_{i}, \sigma)时，p_{i}(wt_{k}) = e^{-\frac{|wt_{k} - wt_{i}|}{\sigma}}，p^\prime_{i}(wt_{k}) = \frac{p_{i}(wt_{k})}{\sum_{k=1}^Kp_{i}(wt_{k})}$$ 
 
 $$ wt_{i}是样本i的观看时长，为真实label值，wt_{k}是时长分桶第k个桶的桶内均值或者桶边界，此处以桶边界为例 $$
 
