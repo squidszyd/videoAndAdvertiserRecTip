@@ -199,7 +199,7 @@ ST_BOUNDS = np.concatenate(
 时长场景建模推荐该种分桶方式，时长越短，数据更密集，分桶要更细；时长越长，数据更稀疏，分桶要更粗
 
 ```python
-tf.constant([np.exp(x/40.0) - 1 for x in range(bucket_size)])
+ST_BOUNDS = [np.exp(x/40.0) - 1 for x in range(bucket_size)]
 ```
 
 - 线上serving时，得到样本的预测时长
