@@ -170,7 +170,7 @@ $$ wt_{i}是样本i的观看时长，为真实label值，wt_{k}是时长分桶�
 
 $$ \sigma 为超参数，可以设置为定值，也可以label_aware，如 \sigma = 1.5 \cdot \sqrt{wt}，label越大，\sigma 越大，可根据后验数据分析确定 \sigma 的分布形态 $$
 
-$$ p_{i}(wt_{k})是计算样本 {i} 在各个分桶上的分布， p'_{i}(wt_{k})为归一化的概率值，这样保证了样本 {i} 在各个分桶上的概率加和=1，也符合多分类softmax的定义。 $$
+$$ p_{i}(wt_{k})是计算样本 {i} 在各个分桶上的分布， p^\prime_{i}(wt_{k})为归一化的概率值，这样保证了样本 {i} 在各个分桶上的概率加和=1，也符合多分类softmax的定义。 $$
 
 ![5.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/5.png)
 
