@@ -60,7 +60,7 @@ $$|\frac{\partial Loss} {\partial pred}| = \begin{cases}
 
 $$|\frac{\partial Loss} {\partial pred}| = \begin{cases}
 C \cdot \frac{|pred - label|}{label}, & if  \frac{|pred - label|}{label}<= \delta \\
-C \cdot \delta, & if \quad \frac{|pred - label|}{label}>\delta \\
+C \cdot \delta, & if \  \frac{|pred - label|}{label}>\delta \\
 \end{cases}$$
 
 其中 $\delta$ 和 $C$ 是超参数, $\delta$ 决定相对值达到多少时步长封顶, $C$ 决定分段函数前半段 $|\frac{\partial Loss} {\partial pred}|$ 随着 $\frac{|pred - label|}{label}$ 线性增长速度, $C \cdot \delta$ 是封顶步长，反推得到：
