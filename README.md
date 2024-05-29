@@ -48,8 +48,8 @@ $$Loss_{i} = \begin{cases}
 求梯度为
 
 $$|\frac{\partial Loss} {\partial pred}| = \begin{cases}
-|pred-label|, if & |pred-label|<= \delta \\
-\delta, if & |pred-label|>\delta \\
+|pred-label|, & if |pred-label|<= \delta \\
+\delta, & if |pred-label|>\delta \\
 \end{cases}$$
 
 即 $|\frac{\partial Loss} {\partial pred}|$ 先随着绝对预估偏差 $|pred-label|$ 线性增长, $|pred-label|$ 超过 $\delta$ 后就封顶，因此Huber Loss既能赋予绝对预估偏差大的样本更大的梯度更新参数，也能限制最大不超过 $\delta$ 预防极端异常值。
