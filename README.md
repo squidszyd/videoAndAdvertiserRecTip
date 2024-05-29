@@ -41,15 +41,15 @@ Huber loss是MAE和MSE损失函数的结合, $\delta$ 的大小决定了损失�
 $$Loss=- \frac{1}{N} \sum_{i=1}^N Loss_{i}$$
 
 $$Loss_{i} = \begin{cases}
-\frac{1}{2} (pred_{i}-label_{i})^2, & if |pred_{i}-label_{i}|<= \delta \\
-\delta |pred_{i}-label_{i}| - \frac{1}{2}\delta^2, & if |pred_{i}-label_{i}|>\delta \\
+\frac{1}{2} (pred_{i}-label_{i})^2, & if \ |pred_{i}-label_{i}|<= \delta \\
+\delta |pred_{i}-label_{i}| - \frac{1}{2}\delta^2, & if \ |pred_{i}-label_{i}|>\delta \\
 \end{cases}$$
 
 求梯度为
 
 $$|\frac{\partial Loss} {\partial pred}| = \begin{cases}
-|pred-label|, & if |pred-label|<= \delta \\
-\delta, & if |pred-label|>\delta \\
+|pred-label|, & if \ |pred-label|<= \delta \\
+\delta, & if \ |pred-label|>\delta \\
 \end{cases}$$
 
 即 $|\frac{\partial Loss} {\partial pred}|$ 先随着绝对预估偏差 $|pred-label|$ 线性增长, $|pred-label|$ 超过 $\delta$ 后就封顶，因此Huber Loss既能赋予绝对预估偏差大的样本更大的梯度更新参数，也能限制最大不超过 $\delta$ 预防极端异常值。
@@ -59,15 +59,15 @@ $$|\frac{\partial Loss} {\partial pred}| = \begin{cases}
 广告出价系统里，GMV模型预估值直接参与ROI出价，相对预估偏差是GMV模型更加关注的指标。如GMV模型将5元的样本预估为10元，将100元的样本预估为105元，从Huber Loss来看，两者得到的Loss绝对值和梯度步长项均一样，但对于广告竞价来看，前者的预估偏差和超成本风险要远高于后者，因此可以对Huber Loss做调整，让GMV模型更加关注相对预估偏差更大的样本。我们希望 $|\frac{\partial Loss} {\partial pred}|$ 随着相对预估偏差 $\frac{|pred - label|}{label}$ 线性增长，且 $\frac{|pred - label|}{label}$ 超过 $\delta$ 后就封顶，公式如下：
 
 $$|\frac{\partial Loss} {\partial pred}| = \begin{cases}
-C \cdot \frac{|pred - label|}{label}, & if  \frac{|pred - label|}{label}<= \delta \\
+C \cdot \frac{|pred - label|}{label}, & if  \ \frac{|pred - label|}{label}<= \delta \\
 C \cdot \delta, & if \  \frac{|pred - label|}{label}>\delta \\
 \end{cases}$$
 
 其中 $\delta$ 和 $C$ 是超参数, $\delta$ 决定相对值达到多少时步长封顶, $C$ 决定分段函数前半段 $|\frac{\partial Loss} {\partial pred}|$ 随着 $\frac{|pred - label|}{label}$ 线性增长速度, $C \cdot \delta$ 是封顶步长，反推得到：
 
 $$Loss_{i} = \begin{cases}
-\frac{C}{2 \cdot label_{i}} (pred_{i}-label_{i})^2, & if \frac{|pred_{i} - label_{i}|}{label_{i}}<= \delta \\
-C \cdot \delta |pred_{i}-label_{i}| - \frac{C \cdot \delta^2 \cdot label}{2}, & if \frac{|pred_{i} - label_{i}|}{label_{i}}>\delta \\
+\frac{C}{2 \cdot label_{i}} (pred_{i}-label_{i})^2, & if \ \frac{|pred_{i} - label_{i}|}{label_{i}}<= \delta \\
+C \cdot \delta |pred_{i}-label_{i}| - \frac{C \cdot \delta^2 \cdot label}{2}, & if \ \frac{|pred_{i} - label_{i}|}{label_{i}}>\delta \\
 \end{cases}$$
 
 后半段的常数项 $- \frac{C \cdot \delta^2 \cdot label}{2}$ 是保证Loss在分段函数断点处连续。
