@@ -41,8 +41,8 @@ Huber loss是MAE和MSE损失函数的结合, $\delta$ 的大小决定了损失�
 $$Loss=- \frac{1}{N} \sum_{i=1}^N Loss_{i}$$
 
 $$Loss_{i} = \begin{cases}
-\frac{1}{2} (pred_{i}-label_{i})^2, if & |pred_{i}-label_{i}|<= \delta \\
-\delta |pred_{i}-label_{i}| - \frac{1}{2}\delta^2, if & |pred_{i}-label_{i}|>\delta \\
+\frac{1}{2} (pred_{i}-label_{i})^2, & if |pred_{i}-label_{i}|<= \delta \\
+\delta |pred_{i}-label_{i}| - \frac{1}{2}\delta^2, & if |pred_{i}-label_{i}|>\delta \\
 \end{cases}$$
 
 求梯度为
@@ -66,8 +66,8 @@ C \cdot \delta, & if \frac{|pred - label|}{label}>\delta \\
 其中 $\delta$ 和 $C$ 是超参数, $\delta$ 决定相对值达到多少时步长封顶, $C$ 决定分段函数前半段 $|\frac{\partial Loss} {\partial pred}|$ 随着 $\frac{|pred - label|}{label}$ 线性增长速度, $C \cdot \delta$ 是封顶步长，反推得到：
 
 $$Loss_{i} = \begin{cases}
-\frac{C}{2 \cdot label_{i}} (pred_{i}-label_{i})^2, if & \frac{|pred_{i} - label_{i}|}{label_{i}}<= \delta \\
-C \cdot \delta |pred_{i}-label_{i}| - \frac{C \cdot \delta^2 \cdot label}{2}, if & \frac{|pred_{i} - label_{i}|}{label_{i}}>\delta \\
+\frac{C}{2 \cdot label_{i}} (pred_{i}-label_{i})^2, & if \frac{|pred_{i} - label_{i}|}{label_{i}}<= \delta \\
+C \cdot \delta |pred_{i}-label_{i}| - \frac{C \cdot \delta^2 \cdot label}{2}, & if \frac{|pred_{i} - label_{i}|}{label_{i}}>\delta \\
 \end{cases}$$
 
 后半段的常数项 $- \frac{C \cdot \delta^2 \cdot label}{2}$ 是保证Loss在分段函数断点处连续。
