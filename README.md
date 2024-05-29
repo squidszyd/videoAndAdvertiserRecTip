@@ -36,7 +36,7 @@ $$Loss=- \frac{1}{N} \sum_{i=1}^N |label_{i} - pred_{i}|$$
 **mae隐含的假设是error（即label-pred）服从拉普拉斯分布，然后最大化error的似然。**
 
 #### Huber loss
-Huber loss是MAE和MSE损失函数的结合，$\delta$ 的大小决定了损失函数对MAE和MSE的侧重程度：
+Huber loss是MAE和MSE损失函数的结合, $\delta$ 的大小决定了损失函数对MAE和MSE的侧重程度：
 
 $$Loss=- \frac{1}{N} \sum_{i=1}^N Loss_{i}$$
 
@@ -45,7 +45,8 @@ $$Loss_{i} = \begin{cases}
 \delta |pred_{i}-label_{i}| - \frac{1}{2}\delta^2, if & |pred_{i}-label_{i}|>\delta \\
 \end{cases}$$
 
-求梯度为：
+求梯度为
+
 $$|\frac{\partial Loss} {\partial pred}| = \begin{cases}
 |pred-label|, if & |pred-label|<= \delta \\
 \delta, if & |pred-label|>\delta \\
