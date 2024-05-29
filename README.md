@@ -73,6 +73,21 @@ C \cdot \delta |pred_{i}-label_{i}| - \frac{C \cdot \delta^2 \cdot label}{2}, & 
 后半段的常数项 $- \frac{C \cdot \delta^2 \cdot label}{2}$ 是保证Loss在分段函数断点处连续。
 
 #### Asymmetric Modeling loss，AM loss
+MAE、MSE、Huber Loss和Huberpp Loss在高低估的时候loss计算相同，即不满足非对称性，而在GMV预估中，更希望模型优先优化低估的问题，提高收入上限。设计新的loss函数，采用log函数对相对误差做平滑，且当 $pred = label$ 时，梯度为0，如下所示：
+
+$$ \frac{\partial Loss} {\partial pred} = ln \frac{pred} {label} $$
+
+在不同的 $label$ 区间下，可以对梯度增加额外的rescale，以满足各区间个性化需求；高 $label$ 区间的样本预估diff较大，可以做一定的加权，阈值根据业务具体确定(假设设置为100，$(label-100)^p$)；另外，样本里会存在一些极端case，如低估99%、高估几千倍，可以根据相对预估偏差对梯度上限做截断，预估值限制在 $[lowBound * label, upBound * label]$, 简称 $[LB * label, UB * label]$, 公式如下：
+
+$$Loss_{i} = \begin{cases}
+\frac{C}{2 \cdot label_{i}} (pred_{i}-label_{i})^2, & if \ \frac{|pred_{i} - label_{i}|}{label_{i}}<= \delta \\
+C \cdot \delta |pred_{i}-label_{i}| - \frac{C \cdot \delta^2 \cdot label}{2}, & if \ \frac{|pred_{i} - label_{i}|}{label_{i}}>\delta \\
+\frac{C}{2 \cdot label_{i}} (pred_{i}-label_{i})^2, & if \ \frac{|pred_{i} - label_{i}|}{label_{i}}<= \delta \\
+(label-100)^p \cdot C \cdot S_{l} \cdot ln(LB), & if \ pred < LB * label \\
+\end{cases}$$
+
+
+
 
 
 #### log normal(ZILN)
