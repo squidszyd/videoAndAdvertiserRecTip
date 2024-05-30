@@ -77,17 +77,27 @@ MAE、MSE、Huber Loss和Huberpp Loss在高低估的时候loss计算相同，即
 
 $$ \frac{\partial Loss} {\partial pred} = ln \frac{pred} {label} $$
 
-在不同的 $label$ 区间下，可以对梯度增加额外的rescale，以满足各区间个性化需求；高 $label$ 区间的样本预估diff较大，可以做一定的加权，阈值根据业务具体确定(假设设置为100，$(label-100)^p$)；另外，样本里会存在一些极端case，如低估99%、高估几千倍，可以根据相对预估偏差对梯度上限做截断，预估值限制在 $[lowBound * label, upBound * label]$, 简称 $[LB * label, UB * label]$, 公式如下：
+在不同的 $label$ 区间下，可以对梯度增加额外的rescale，以满足各区间个性化需求；另外，样本里会存在一些极端case，如低估99%、高估几千倍，可以根据相对预估偏差对梯度上限做截断，预估值限制在 $[lowBound * label, upBound * label]$, 简称 $[LB * label, UB * label]$, 公式如下：
 
-$$Loss_{i} = \begin{cases}
-\frac{C}{2 \cdot label_{i}} (pred_{i}-label_{i})^2, & if \ \frac{|pred_{i} - label_{i}|}{label_{i}}<= \delta \\
-C \cdot \delta |pred_{i}-label_{i}| - \frac{C \cdot \delta^2 \cdot label}{2}, & if \ \frac{|pred_{i} - label_{i}|}{label_{i}}>\delta \\
-\frac{C}{2 \cdot label_{i}} (pred_{i}-label_{i})^2, & if \ \frac{|pred_{i} - label_{i}|}{label_{i}}<= \delta \\
-(label-100)^p \cdot C \cdot S_{l} \cdot ln(LB), & if \ pred < LB * label \\
+$$\frac{\partial Loss} {\partial pred} = \begin{cases}
+C \cdot S_{h} \cdot ln(UB), & if \ pred > UB * label \\
+C \cdot S_{h} \cdot ln(\frac{pred}{label}), & if \ UB * label >= pred > label \\
+C \cdot S_{l} \cdot ln(\frac{pred}{label}), & if \ LB * label <= pred <= label \\
+C \cdot S_{l} \cdot ln(LB), & if \ pred < LB * label \\
 \end{cases}$$
 
+由导数反向推导损失函数，并考虑分段函数的连续情况，如下：
 
 
+$$Loss = \begin{cases}
+C \cdot S_{h} \cdot [ln(UB) \cdot |label - pred| - ln(UB) \cdot (UB-1) \cdot label + UB \cdot label \cdot (ln(UB)-1)] - (S_{l} - S_{h}) \cdot C \cdot label, & if \ pred > UB * label \\
+
+C \cdot S_{h} \cdot pred \cdot [ln(pred) - ln(label) -1] - (S_{l} - S_{h}) \cdot C \cdot label, & if \ UB * label >= pred > label \\
+
+C \cdot S_{l} \cdot pred \cdot [ln(pred) - ln(label) -1], & if \ LB * label <= pred <= label \\
+
+C \cdot S_{l} \cdot [-ln(LB) \cdot |label - pred| + ln(LB) \cdot (1-LB) \cdot label + LB \cdot label \cdot (ln(LB) - 1)], & if \ pred < LB * label \\
+\end{cases}$$
 
 
 #### log normal(ZILN)
