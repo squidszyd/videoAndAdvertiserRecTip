@@ -117,7 +117,6 @@ C \cdot S_{l} \cdot ln(LB), & if \ pred < LB * label \\
 
 由导数反向推导损失函数，并考虑分段函数的连续情况，如下：
 
-
 $$Loss = \begin{cases}
 C \cdot S_{h} \cdot [ln(UB) \cdot |label - pred| - ln(UB) \cdot (UB-1) \cdot label + UB \cdot label \cdot (ln(UB)-1)] - (S_{l} - S_{h}) \cdot C \cdot label, & if \ pred > UB * label \\
 
