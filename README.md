@@ -32,14 +32,13 @@
 优化方向：损失函数上做优化，不同的损失对数据有不同的先验分布假设，针对业务场景做出适配调整。
 
 
-|  | 方案1 | 方案2 | 方案3 |
-| :----:| :----: | :----: | :----: |
-| MSE | $wt \in (0, +\infty]$ | $wt \in (0, +\infty]$ | $wt \in (0, +\infty]$ |
-| MAE | $wt \in (0, +\infty]$ | $wt \in (0, +\infty]$ | $wt \in (0, +\infty]$ |
-| Huber | $wt \in (0, +\infty]$ | $wt \in (0, +\infty]$ | $wt \in (0, +\infty]$ |
-| Huberpp | $wt \in (0, +\infty]$ | $wt \in (0, +\infty]$ | $wt \in (0, +\infty]$ |
-
-AM loss
+|  | insight | 推导 | 
+| :----:| :----: | :----: |
+| MSE | error（即label-pred）服从正态分布 | 假设 $y_{i} = h_{\theta}(x_{i};\theta) + \epsilon_{i}$, 其中 $\epsilon_{i}$ 为error，假设erro服从高斯分布：$\epsilon_{i} \sim \mathcal{N}(0, \sigma^2)时$, 其概率密度函数为: $p(\epsilon_{i}) = \frac{1}{\sqrt{2\pi}\sigma}exp(-\frac{\epsilon_{i}^2}{2\sigma^2})$ 由误差定义，可得: $p(y_{i} \| x_{i}; \theta) = \frac{1}{\sqrt{2\pi}\sigma}exp(-\frac{(y_{i} - h_{\theta}(x_{i};\theta))^2}{2\sigma^2})$, 再用最大似然原理最大化上式，可得: $log(L(\theta)) = log \prod_{i=1}^{N} p(y_{i} \| x_{i}; \theta) = Nlog\frac{1}{\sqrt{2\pi}\sigma} - \frac{1}{2\sigma^2}\sum_{i=1}^N (y_{i} - h_{\theta}(x_{i};\theta))^2 \Leftrightarrow min \frac{1}{2} \sum_{i=1}^N (y_{i} - h_{\theta}(x_{i};\theta))^2$ |
+| MAE | error（即label-pred）服从拉普拉斯分布 |
+| Huber | Huber loss是MAE和MSE损失函数的结合， |
+| Huberpp | MSE/MAE/Huber Loss关注的是绝对误差，而在业务中，关注的更多的是相对误差 |
+| AM loss | 以上Loss均是对称性Loss，而在业务中，我们对于高低估问题关注程度不同，可以据此调整 |
 
 
 2. 回归转分类
@@ -272,7 +271,7 @@ $$=\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p^\prime_{i}(wt_{k}) \cdot log(p^\prime
 $$=-\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K p^\prime_{i}(wt_{k}) \cdot log(p_{i,k}) + const$$
 
 
-$$当 p(wt_{k}) \sim \mathcal{N}(wt_{i}, \sigma)时，p_{i}(wt_{k}) = \frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{1}{2}(\frac{wt_{k} - wt_{i}}{\sigma})^{2}}，p^\prime_{i}(wt_{k}) = \frac{p_{i}(wt_{k})}{\sum_{k=1}^Kp_{i}(wt_{k})}$$ 
+$$当 p(wt_{k}) \sim \mathcal{N}(wt_{i}, \sigma^2)时，p_{i}(wt_{k}) = \frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{1}{2}(\frac{wt_{k} - wt_{i}}{\sigma})^{2}}，p^\prime_{i}(wt_{k}) = \frac{p_{i}(wt_{k})}{\sum_{k=1}^Kp_{i}(wt_{k})}$$ 
 
 $$当 p(wt_{k}) \sim Laplace(wt_{i}, \sigma)时，p_{i}(wt_{k}) = e^{-\frac{|wt_{k} - wt_{i}|}{\sigma}}，p^\prime_{i}(wt_{k}) = \frac{p_{i}(wt_{k})}{\sum_{k=1}^Kp_{i}(wt_{k})}$$ 
 
