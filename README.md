@@ -34,15 +34,19 @@
 
 |  | insight | 推导 | 
 | :----:| :----: | :----: |
-| MSE | error（即label-pred）服从正态分布 | 假设 $y_{i} = h_{\theta}(x_{i};\theta) + \epsilon_{i}$, 其中 $\epsilon_{i}$ 为error，假设erro服从高斯分布: $\epsilon_{i} \sim \mathcal{N}(0, \sigma^2)时$, 其概率密度函数为: $p(\epsilon_{i}) = \frac{1}{\sqrt{2\pi}\sigma}exp(-\frac{\epsilon_{i}^2}{2\sigma^2})$ 由误差定义，可得: $p(y_{i} \| x_{i}; \theta) = \frac{1}{\sqrt{2\pi}\sigma}exp(-\frac{(y_{i} - h_{\theta}(x_{i};\theta))^2}{2\sigma^2})$, 再用最大似然原理最大化上式，可得: $$log(L(\theta)) = log \prod_{i=1}^{N} p(y_{i} \| x_{i}; \theta) = Nlog\frac{1}{\sqrt{2\pi}\sigma} - \frac{1}{2\sigma^2}\sum_{i=1}^{N} (y_{i} - h_{\theta}(x_{i};\theta))^2$$ $$\Leftrightarrow min \frac{1}{2} \sum_{i=1}^{N} (y_{i} - h_{\theta}(x_{i};\theta))^2$$ |
-| MAE | error（即label-pred）服从拉普拉斯分布 |
-| Huber | Huber loss是MAE和MSE损失函数的结合， |
+| MSE | error（即label-pred）服从正态分布，https://zh.wikipedia.org/wiki/%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83 | 假设 $y_{i} = h_{\theta}(x_{i};\theta) + \epsilon_{i}$, 其中 $\epsilon_{i}$ 为error，假设erro服从高斯分布: $\epsilon_{i} \sim \mathcal{N}(0, \sigma^2)时$, 其概率密度函数为: $p(\epsilon_{i}) = \frac{1}{\sqrt{2\pi}\sigma}exp(-\frac{\epsilon_{i}^2}{2\sigma^2})$ 由误差定义，可得: $p(y_{i} \| x_{i}; \theta) = \frac{1}{\sqrt{2\pi}\sigma}exp(-\frac{(y_{i} - h_{\theta}(x_{i};\theta))^2}{2\sigma^2})$, 再用最大似然原理最大化上式，可得: $$log(L(\theta)) = log \prod_{i=1}^{N} p(y_{i} \| x_{i}; \theta) = Nlog\frac{1}{\sqrt{2\pi}\sigma} - \frac{1}{2\sigma^2}\sum_{i=1}^{N} (y_{i} - h_{\theta}(x_{i};\theta))^2$$ $$\Leftrightarrow min \frac{1}{2} \sum_{i=1}^{N} (y_{i} - h_{\theta}(x_{i};\theta))^2$$ |
+| MAE | error（即label-pred）服从拉普拉斯分布，https://zh.wikipedia.org/wiki/%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E5%88%86%E5%B8%83 | 假设 $y_{i} = h_{\theta}(x_{i};\theta) + \epsilon_{i}$, 其中 $\epsilon_{i}$ 为error，假设erro服从拉普拉斯分布: $\epsilon_{i} \sim \mathcal{L}(0, 1)时$, 可得: $p(y_{i} \| x_{i}; \theta) = \frac{1}{2}exp(-\|y_{i} - h_{\theta}(x_{i};\theta)\|)$, 再用最大似然原理最大化上式，可得: $$log(L(\theta)) = log \prod_{i=1}^{N} p(y_{i} \| x_{i}; \theta) = Nlog\frac{1}{2} - \sum_{i=1}^{N} \|y_{i} - h_{\theta}(x_{i};\theta)\|$$ $$\Leftrightarrow min \sum_{i=1}^{N} \|y_{i} - h_{\theta}(x_{i};\theta)\|$$ |
+| Huber | Huber loss是MAE和MSE损失函数的结合，具备两者的优点 |
 | Huberpp | MSE/MAE/Huber Loss关注的是绝对误差，而在业务中，关注的更多的是相对误差 |
 | AM loss | 以上Loss均是对称性Loss，而在业务中，我们对于高低估问题关注程度不同，可以据此调整 |
 
 
 2. 回归转分类
-优化方向：回归问题相比分类更加难以优化，难以学习，具体见：，因此常采用将回归问题转为分类问题进行优化。
+优化方向：采用各类变换方式将回归问题转为分类问题进行优化。
+
+
+
+
 
 3. calibration
 
@@ -368,6 +372,10 @@ $$ p_{i,k}表示样本i预测时长是第k个桶的概率，I(k \le b_{i})表示
 #### D2Q
 待补充
 https://arxiv.org/pdf/2206.06003
+
+
+**回归问题预估为什么会「高区间低估，低区间高估」？**
+
 
 ## 用户冷启动优化
 待补充
