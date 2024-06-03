@@ -119,11 +119,8 @@ C \cdot S_{l} \cdot ln(LB), & if \ pred < LB * label \\
 
 $$Loss = \begin{cases}
 C \cdot S_{h} \cdot [ln(UB) \cdot |label - pred| - ln(UB) \cdot (UB-1) \cdot label + UB \cdot label \cdot (ln(UB)-1)] - (S_{l} - S_{h}) \cdot C \cdot label, & if \ pred > UB * label \\
-
 C \cdot S_{h} \cdot pred \cdot [ln(pred) - ln(label) -1] - (S_{l} - S_{h}) \cdot C \cdot label, & if \ UB * label >= pred > label \\
-
 C \cdot S_{l} \cdot pred \cdot [ln(pred) - ln(label) -1], & if \ LB * label <= pred <= label \\
-
 C \cdot S_{l} \cdot [-ln(LB) \cdot |label - pred| + ln(LB) \cdot (1-LB) \cdot label + LB \cdot label \cdot (ln(LB) - 1)], & if \ pred < LB * label \\
 \end{cases}$$
 
