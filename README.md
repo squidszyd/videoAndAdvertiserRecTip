@@ -38,9 +38,9 @@
 | :----:| :----: | :----: |
 | MSE | error（即label-pred）服从[正态分布](https://zh.wikipedia.org/wiki/%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83) | 假设 $y_{i} = h_{\theta}(x_{i};\theta) + \epsilon_{i}$, 其中 $\epsilon_{i}$ 为error，假设erro服从高斯分布: $\epsilon_{i} \sim \mathcal{N}(0, \sigma^2)时$, 其概率密度函数为: $p(\epsilon_{i}) = \frac{1}{\sqrt{2\pi}\sigma}exp(-\frac{\epsilon_{i}^2}{2\sigma^2})$ 由误差定义，可得: $p(y_{i} \| x_{i}; \theta) = \frac{1}{\sqrt{2\pi}\sigma}exp(-\frac{(y_{i} - h_{\theta}(x_{i};\theta))^2}{2\sigma^2})$, 再用最大似然原理最大化上式，可得: $$log(L(\theta)) = log \prod_{i=1}^{N} p(y_{i} \| x_{i}; \theta) = Nlog\frac{1}{\sqrt{2\pi}\sigma} - \frac{1}{2\sigma^2}\sum_{i=1}^{N} (y_{i} - h_{\theta}(x_{i};\theta))^2$$ $$\Leftrightarrow min \frac{1}{2} \sum_{i=1}^{N} (y_{i} - h_{\theta}(x_{i};\theta))^2$$ |
 | MAE | error（即label-pred）服从[拉普拉斯分布](https://zh.wikipedia.org/wiki/%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E5%88%86%E5%B8%83) | 假设 $y_{i} = h_{\theta}(x_{i};\theta) + \epsilon_{i}$, 其中 $\epsilon_{i}$ 为error，假设erro服从拉普拉斯分布: $\epsilon_{i} \sim \mathcal{L}(0, 1)时$, 可得: $p(y_{i} \| x_{i}; \theta) = \frac{1}{2}exp(-\|y_{i} - h_{\theta}(x_{i};\theta)\|)$, 再用最大似然原理最大化上式，可得: $$log(L(\theta)) = log \prod_{i=1}^{N} p(y_{i} \| x_{i}; \theta) = Nlog\frac{1}{2} - \sum_{i=1}^{N} \|y_{i} - h_{\theta}(x_{i};\theta)\|$$ $$\Leftrightarrow min \sum_{i=1}^{N} \|y_{i} - h_{\theta}(x_{i};\theta)\|$$ |
-| Huber | Huber loss是MAE和MSE损失函数的结合，具备两者的优点 |
-| Huberpp | MSE/MAE/Huber Loss关注的是绝对误差，而在业务中，关注的更多的是相对误差 |
-| AM loss | 以上Loss均是对称性Loss，而在业务中，我们对于高低估问题关注程度不同，可以据此调整 |
+| Huber Loss | Huber loss是MAE和MSE损失函数的结合，具备两者的优点 |
+| Huberpp Loss | MSE/MAE/Huber Loss关注的是绝对误差，而在业务中，关注的更多的是相对误差 |
+| AM Loss | 以上Loss均是对称性Loss，而在业务中，我们对于高低估问题关注程度不同，可以据此调整 |
 
 
 2. 回归转分类
@@ -217,9 +217,9 @@ $$ =- \frac{1}{N} \sum_{i=1}^N log[(\frac{\widehat{wt_{i}}}{\widehat{wt_{i}}+1})
 
 几何分布：https://en.wikipedia.org/wiki/Geometric_distribution
 
-wce的缺点：
-- wce隐含的假设是y服从几何分布。虽然wce是无偏预估，预估值等于数学期望，但其隐含的假设是y服从几何分布，如果label的分布和几何分布差异较大，则wce效果会变差；
-- wce在低估和高估的时候梯度大小不同。对loss梯度做简单推导后可以发现wce在低估和高估的时候梯度大小不同，具体推导如下：
+WCE的缺点：
+- WCE隐含的假设是y服从几何分布。虽然WCE是无偏预估，预估值等于数学期望，但其隐含的假设是y服从几何分布，如果label的分布和几何分布差异较大，则WCE效果会变差；
+- WCE在低估和高估的时候梯度大小不同。对loss梯度做简单推导后可以发现WCE在低估和高估的时候梯度大小不同，具体推导如下：
 
 $$Loss=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot log(\widehat{wt_{i}}) - (1+w_{i}) \cdot log(1+\widehat{wt_{i}})]$$
 
