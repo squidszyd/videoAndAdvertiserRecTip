@@ -53,7 +53,7 @@
 3. calibration
 
 
-#### MSE loss
+#### MSE Loss
 
 $$Loss=- \frac{1}{N} \sum_{i=1}^N (label_{i} - pred_{i})^2$$
 
@@ -63,7 +63,7 @@ $$Loss=- \frac{1}{N} \sum_{i=1}^N (label_{i} - pred_{i})^2$$
 
 **MSE隐含的假设是error服从正态分布，然而很多情境下这个假设并不成立。当error不服从正态分布时，MSE的效果就有可能受损。**
 
-#### MAE loss
+#### MAE Loss
 
 $$Loss=- \frac{1}{N} \sum_{i=1}^N |label_{i} - pred_{i}|$$
 
