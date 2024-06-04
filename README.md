@@ -374,7 +374,9 @@ $$ p_{i,k}表示样本i预测时长是第k个桶的概率，I(k \le b_{i})表示
 https://arxiv.org/pdf/2206.06003
 
 
+
 **回归问题预估为什么会「高区间低估，低区间高估」？**
+
 回归模型的预估总是会出现「高区间低估，低区间高估」的现象，而不是「低区间低估，高区间高估」，或是「无序混乱地低估/高估」呢？
 
 - 定性解释
@@ -385,12 +387,11 @@ https://arxiv.org/pdf/2206.06003
 
 通用的回归损失函数的收敛目标一般是样本点的均值或中值，这就导致了预估分布相比原始分布更加向“中心”靠拢，从而导致了「高区间低估，低区间高估」。
 
-假设我们要寻找一个 $\beta$ , 使得当所有预估值都为 $\beta$ 时，$Loss$ 最小( $Loss$ 导数为0)
+假设我们要寻找一个 $\beta$ , 使得当所有预估值都为 $\beta$ 时, $Loss$ 最小( $Loss$ 导数为0)
 
 | Loss | 结论 | 推导 |
 | :----:| :----: | :----: |
-| MSE | MSE是均值回归 | $$Loss=\frac{1}{N} \sum_{i=1}^N (label_{i} - pred_{i})^2$$ , 代入 $\beta$ 可得 $$Loss=\frac{1}{N} \sum_{i=1}^N (label_{i} - \beta)^2$$ 于是有 $$\frac{\partial Loss} {\partial \beta} =\frac{2}{N} \sum_{i=1}^N (label_{i} - \beta)$$ 要求 $$\frac{\partial Loss} {\partial \beta}=0$$ , 则有 $$\beta=\frac{1}{N}\sum_{i=1}^N label_{i}$$
- |
+| MSE | MSE是均值回归 | $$Loss=\frac{1}{N} \sum_{i=1}^N (label_{i} - pred_{i})^2$$ , 代入 $\beta$ 可得 $$Loss=\frac{1}{N} \sum_{i=1}^N (label_{i} - \beta)^2$$ 于是有 $$\frac{\partial Loss} {\partial \beta} =\frac{2}{N} \sum_{i=1}^N (label_{i} - \beta)$$ 要求 $$\frac{\partial Loss} {\partial \beta}=0$$ , 则有 $$\beta=\frac{1}{N}\sum_{i=1}^N label_{i}$$|
 | MAE | MAE是中值回归 | $$Loss=\frac{1}{N} \sum_{i=1}^N \|label_{i} - pred_{i}\|$$ , 代入 $\beta$ 可得 $$Loss=\frac{1}{N} \sum_{i=1}^N \|label_{i} - \beta\|$$ 于是有 $$\frac{\partial Loss} {\partial \beta} =-\frac{1}{N} \sum_{i=1}^N signal(label_{i} - \beta)$$ $$when \ label_{i} > \beta, signal(label_{i} - \beta) = 1;$$ $$when \ label_{i} < \beta, signal(label_{i} - \beta) = -1$$ 当 $label_{i} - \beta$ 正数和负数的数量相同时，也就是 $\beta$ 为 $label_{i}$ 的中位数时，该导数为0，Loss最小|
 | WCE | WCE是均值回归 | $$Loss=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot log(\widehat{wt_{i}}) - (1+w_{i}) \cdot log(1+\widehat{wt_{i}})]$$ 代入 $\beta$ 可得 $$Loss=- \frac{1}{N} \sum_{i=1}^N [w_{i} \cdot log(\beta) - (1+w_{i}) \cdot log(1+\beta)]$$ 于是有 $$\frac{\partial Loss} {\partial \beta} =-\frac{1}{N} \sum_{i=1}^N (\frac{w_{i}}{\beta} - \frac{w_{i}+1}{\beta+1})$$ 要求 $$\frac{\partial Loss} {\partial \beta} = 0$$ 则 $$\sum_{i=1}^N \frac{w_{i} - \beta}{\beta \cdot (\beta+1)} = 0$$ $$\beta=\frac{1}{N}\sum_{i=1}^N w_{i}$$ |
 
