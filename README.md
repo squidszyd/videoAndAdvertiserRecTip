@@ -11,7 +11,7 @@
 
 ### 回归问题建模：时长建模，GMV建模，LTV建模
 
-**短视频、广告及推荐场景经常涉及到对连续值的预估建模，如时长建模、GMV建模、流量ecpm预估、LTV预估、付费次数、直播打赏金额预估等，回归问题相比分类问题更加难以优化，具体见：https://cloud.tencent.com/developer/news/60043，原因如下：**
+**短视频、广告及推荐场景经常涉及到对连续值的预估建模，如时长建模、GMV建模、流量ecpm预估、LTV预估、付费次数、直播打赏金额预估等，回归问题相比分类问题更加难以优化，原因如下：**
 
 1. 回归问题的损失函数更难选取。
 回归问题的损失函数一般都隐含着对样本概率分布的假设，如果真实的后验数据不符合该假设，拟合效果就会很差；而分类问题的损失函数如交叉熵，对标签、误差没有什么前置假设，仅仅等价于最大似然
@@ -25,14 +25,16 @@
 分类问题中，样本不均衡是指一个或多个类的样本数量远远少于其他类，导致模型无法很好的学习这些类的信息，进而使模型更倾向于预测样本多的类。在CV中，常采用的方法是augmentation，旋转平移等方法增加样本量。在回归问题中，不仅仅是不均衡，而是经常出现“断片”现象。如一个问题的值域是[0, 100]，但是在[10, 100]里样本量很少，几乎没有样本，不能硬插值填充数据，这种情况会导致严重的样本不均衡问题，进而在该区间上拟合效果非常差。
 另外，回归问题的值域可能是无穷的，而样本所对应的空间仅仅是很小的一部分。当新样本的label不在训练样本对应的值域中时，模型的预测值也会严重偏离实际。
 
+参考：https://cloud.tencent.com/developer/news/60043
 
 **如何对回归问题进行优化，主要有以下优化思路：**
 
 1. 损失函数优化
+
 优化方向：损失函数上做优化，不同的损失对数据有不同的先验分布假设，针对业务场景做出适配调整。
 
 
-|  | insight | 推导 | 
+| 损失函数 | insight | 推导 | 
 | :----:| :----: | :----: |
 | MSE | error（即label-pred）服从[正态分布](https://zh.wikipedia.org/wiki/%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83) | 假设 $y_{i} = h_{\theta}(x_{i};\theta) + \epsilon_{i}$, 其中 $\epsilon_{i}$ 为error，假设erro服从高斯分布: $\epsilon_{i} \sim \mathcal{N}(0, \sigma^2)时$, 其概率密度函数为: $p(\epsilon_{i}) = \frac{1}{\sqrt{2\pi}\sigma}exp(-\frac{\epsilon_{i}^2}{2\sigma^2})$ 由误差定义，可得: $p(y_{i} \| x_{i}; \theta) = \frac{1}{\sqrt{2\pi}\sigma}exp(-\frac{(y_{i} - h_{\theta}(x_{i};\theta))^2}{2\sigma^2})$, 再用最大似然原理最大化上式，可得: $$log(L(\theta)) = log \prod_{i=1}^{N} p(y_{i} \| x_{i}; \theta) = Nlog\frac{1}{\sqrt{2\pi}\sigma} - \frac{1}{2\sigma^2}\sum_{i=1}^{N} (y_{i} - h_{\theta}(x_{i};\theta))^2$$ $$\Leftrightarrow min \frac{1}{2} \sum_{i=1}^{N} (y_{i} - h_{\theta}(x_{i};\theta))^2$$ |
 | MAE | error（即label-pred）服从[拉普拉斯分布](https://zh.wikipedia.org/wiki/%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E5%88%86%E5%B8%83) | 假设 $y_{i} = h_{\theta}(x_{i};\theta) + \epsilon_{i}$, 其中 $\epsilon_{i}$ 为error，假设erro服从拉普拉斯分布: $\epsilon_{i} \sim \mathcal{L}(0, 1)时$, 可得: $p(y_{i} \| x_{i}; \theta) = \frac{1}{2}exp(-\|y_{i} - h_{\theta}(x_{i};\theta)\|)$, 再用最大似然原理最大化上式，可得: $$log(L(\theta)) = log \prod_{i=1}^{N} p(y_{i} \| x_{i}; \theta) = Nlog\frac{1}{2} - \sum_{i=1}^{N} \|y_{i} - h_{\theta}(x_{i};\theta)\|$$ $$\Leftrightarrow min \sum_{i=1}^{N} \|y_{i} - h_{\theta}(x_{i};\theta)\|$$ |
@@ -51,24 +53,24 @@
 3. calibration
 
 
-#### mse loss
+#### MSE loss
 
 $$Loss=- \frac{1}{N} \sum_{i=1}^N (label_{i} - pred_{i})^2$$
 
-用mse损失函数对观看时长 or GMV or LTV 拟合，由于观看时长 or GMV or LTV 数值范围较大，直接对原始值拟合会导致 $logit$ 出现较大的range，导致模型陷入局部最优，引起梯度爆炸。
+用MSE损失函数对观看时长 or GMV or LTV 拟合，由于观看时长 or GMV or LTV 数值范围较大，直接对原始值拟合会导致 $logit$ 出现较大的range，导致模型陷入局部最优，引起梯度爆炸。
 
 对观看时长 or GMV or LTV 做 $log$ 或 $e^{0.3}$ 变换后进行拟合，由于变换函数不是线性的，该方法拟合是有偏估计，对于数值较大的样本拟合时会出现低估现象。
 
-**mse隐含的假设是error（即label-pred）服从正态分布，然后最大化error的似然；然而很多情境下这个假设并不成立。当error不服从正态分布时，mse的效果就有可能受损。**
+**MSE隐含的假设是error服从正态分布，然而很多情境下这个假设并不成立。当error不服从正态分布时，MSE的效果就有可能受损。**
 
 #### MAE loss
 
 $$Loss=- \frac{1}{N} \sum_{i=1}^N |label_{i} - pred_{i}|$$
 
-**mae隐含的假设是error（即label-pred）服从拉普拉斯分布，然后最大化error的似然。**
+**MAE隐含的假设是error服从拉普拉斯分布，然而很多情境下这个假设并不成立。当error不服从拉普拉斯分布时，MAE的效果就有可能受损。**
 
-#### Huber loss
-Huber loss是MAE和MSE损失函数的结合, $\delta$ 的大小决定了损失函数对MAE和MSE的侧重程度：
+#### Huber Loss
+Huber Loss是MAE和MSE损失函数的结合, $\delta$ 的大小决定了损失函数对MAE和MSE的侧重程度：
 
 $$Loss=- \frac{1}{N} \sum_{i=1}^N Loss_{i}$$
 
@@ -86,7 +88,7 @@ $$|\frac{\partial Loss} {\partial pred}| = \begin{cases}
 
 即 $|\frac{\partial Loss} {\partial pred}|$ 先随着绝对预估偏差 $|pred-label|$ 线性增长, $|pred-label|$ 超过 $\delta$ 后就封顶，因此Huber Loss既能赋予绝对预估偏差大的样本更大的梯度更新参数，也能限制最大不超过 $\delta$ 预防极端异常值。
 
-#### Huberpp loss
+#### Huberpp Loss
 
 广告出价系统里，GMV模型预估值直接参与ROI出价，相对预估偏差是GMV模型更加关注的指标。如GMV模型将5元的样本预估为10元，将100元的样本预估为105元，从Huber Loss来看，两者得到的Loss绝对值和梯度步长项均一样，但对于广告竞价来看，前者的预估偏差和超成本风险要远高于后者，因此可以对Huber Loss做调整，让GMV模型更加关注相对预估偏差更大的样本。我们希望 $|\frac{\partial Loss} {\partial pred}|$ 随着相对预估偏差 $\frac{|pred - label|}{label}$ 线性增长，且 $\frac{|pred - label|}{label}$ 超过 $\delta$ 后就封顶，公式如下：
 
