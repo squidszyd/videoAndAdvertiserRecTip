@@ -188,7 +188,7 @@ WCE建模时长的方案在国内某手app上得到充分验证，对于权重 $
 | 模型预测值还原为时长 | $wt = 2^{\frac{p_{1}}{1-p_{1}}} -1 $ | $wt = 2^{(\frac{p_{2}}{1-p_{2}} -1)} -1$ | $wt = \frac{p_{3}}{1-p_{3}}$ |
 | 变量边界条件 | $wt \in (0, +\infty]$ <br> $w_{1} \in (0, +\infty]$ <br> $p_{1} \in (0, 1]$ | $wt \in (0, +\infty]$ <br> $w_{2} \in (1, +\infty]$ <br> $p_{2} \in (\frac{1}{2}, 1]$ | $wt \in (0, +\infty]$ <br> $w_{3} \in (0, +\infty]$ <br> $p_{3} \in (0, 1]$ |
 | 时长边界条件 | $当wt=1时，$ <br> $w_{1} = 1$ <br> $p_{1} = \frac{1}{2}$ | $当wt=1时，$ <br> $w_{2} = 2$ <br> $p_{2} = \frac{2}{3}$ | $当wt=1时，$ <br> $w_{3} = 1$ <br> $p_{3} = \frac{1}{2}$ |
-| 模型预测值图示 | ![1.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/1.png) | ![2.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/2.png) |
+| 模型预测值图示 | ![1.png](https://github.com/squidszyd/videoAndAdvertiserRecTip/blob/main/imgs/1.png) | ![2.png](https://github.com/squidszyd/videoAndAdvertiserRecTip/blob/main/imgs/2.png) |
 
 对于权重 $w$，业界有两种处理方法：
 
@@ -213,7 +213,7 @@ $$ =- \frac{1}{N} \sum_{i=1}^N log[(\frac{\widehat{wt_{i}}}{\widehat{wt_{i}}+1})
 当 $w_{i} \in (0,1,2,..., +\infty]$，令 $p_{i} = \frac{1}{\widehat{wt_{i}}+1}$，有 $P(w_{i}=k|x_{i}) = (1-p_{i})^k \cdot p_{i}$，其满足几何分布，数学期望为 $\frac{1 - p_{i}}{p_{i}} = \widehat{wt_{i}}$ ，即WCE的预估值等于数学期望，是无偏预估。
 
 几何分布的期望和方差如下：
-![6.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/6.png)
+![6.png](https://github.com/squidszyd/videoAndAdvertiserRecTip/blob/main/imgs/6.png)
 
 几何分布：https://en.wikipedia.org/wiki/Geometric_distribution
 
@@ -228,7 +228,7 @@ $$ \frac {\partial Loss} {\partial \widehat{wt_{i}}}=- \frac{1}{N} \sum_{i=1}^N 
 $$ = \frac{1}{N} \sum_{i=1}^N \frac{\widehat{wt_{i}} - w_{i}}{\widehat{wt_{i}} \cdot (1+\widehat{wt_{i}})}$$
 
 以 $w_{i}=20$ 为例，画出梯度图像如下所示：
-![4.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/4.png)
+![4.png](https://github.com/squidszyd/videoAndAdvertiserRecTip/blob/main/imgs/4.png)
 
 可以看出，在低估 $\widehat{wt_{i}}<20$ 和高估 $\widehat{wt_{i}}>20$ 时，梯度具有严重的不对称性。低估时，梯度较大；高估时，梯度较小。在训练时，长视频样本回传梯度大，作用到全样本上，也贡献了短视频的预估，所以会出现长视频低估、短视频高估现象。
 
@@ -287,7 +287,7 @@ $$ \sigma 为超参数，可以设置为定值，也可以label_aware，如 \sig
 
 $$ p_{i}(wt_{k})是计算样本 {i} 在各个分桶上的分布， p^\prime_{i}(wt_{k})为归一化的概率值，这样保证了样本 {i} 在各个分桶上的概率加和=1，也符合多分类softmax的定义。 $$
 
-![5.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/5.png)
+![5.png](https://github.com/squidszyd/videoAndAdvertiserRecTip/blob/main/imgs/5.png)
 
 软化函数的设计则只要label变换后的分布符合场景后验值的分布即可。
 无论哪种软化策略，都依赖分桶，顾名思义是对staytime的一堆边界划分点，可以均匀划分，也可以非均匀划分，具体每个场景的分桶策略可根据场景特性决定，核心原则是让桶内的样本数量分布更均匀。下面给出一些常见的划分例子，分桶策略有以下几种：
@@ -335,7 +335,7 @@ https://github.com/hufu6371/DORN
 
 简单的多分类存在没有考虑非目标类的之间的序关系的问题，Ordinal Regression则是一种考虑类间序关系的回归方法，推导过程参考：https://zhuanlan.zhihu.com/p/573572151
 
-![3.png](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/3.png)
+![3.png](https://github.com/squidszyd/videoAndAdvertiserRecTip/blob/main/imgs/3.png)
 
 具体做法如下：
 
@@ -384,7 +384,7 @@ https://arxiv.org/pdf/2206.06003
 - 定性解释
 直观想象一下，假设我们要使用一个函数 $f(x)$ 来拟合如图所示的蓝色点，我们必然不可能让函数经过每一个点，一种较好的拟合方式如红线所示，对于局部点误差较大，但对整体点平均误差最小。在这种情况下，对于分布在红线左右的点，红线其实拟合的是他们的中间状态(可能是均值/中位数等，取决于使用的误差定义)，因此预估输出表现出的现象即为「高区间低估，低区间高估」。
 
-![7.jpg](https://github.com/ShaoQiBNU/videoRecTips/blob/main/imgs/7.jpg)
+![7.jpg](https://github.com/squidszyd/videoAndAdvertiserRecTip/blob/main/imgs/7.jpg)
 
 
 通用的回归损失函数的收敛目标一般是样本点的均值或中值，这就导致了预估分布相比原始分布更加向“中心”靠拢，从而导致了「高区间低估，低区间高估」。
